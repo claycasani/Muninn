@@ -13,7 +13,7 @@ namespace Muninn.Services;
 /// Wraps all HTTP calls to the Muninn Spring Boot backend.
 /// Base URL is resolved from appsettings.json plus optional debug overrides.
 /// - Simulator / Mac-local runs use ApiBaseUrlLocal (127.0.0.1)
-/// - Physical iPhone runs use ApiBaseUrlLan (the private Tailscale Serve URL in development)
+/// - Physical iPhone runs use ApiBaseUrlLan (configured locally for the development network)
 /// - Debug builds can override via:
 ///   1) DebugBaseUrlOverride below
 ///   2) appsettings.local.json (AppDataDirectory or app bundle)

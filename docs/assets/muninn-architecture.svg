@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1200" viewBox="0 0 2000 1200" role="img" aria-labelledby="title description">
+  <title id="title">Muninn system architecture</title>
+  <desc id="description">A diagram showing the .NET MAUI Apple client communicating with a Spring Boot API configured for Render, Neon PostgreSQL, Cloudflare R2, public webpages, and Gemini 2.5 Flash.</desc>
+
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#1A1A1A" flood-opacity="0.07"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#444A2E"/>
+    </marker>
+    <marker id="arrowMuted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8E8E93"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif; }
+      .title { font-size: 54px; font-weight: 720; fill: #1A1A1A; letter-spacing: -1.4px; }
+      .subtitle { font-size: 24px; font-weight: 430; fill: #636366; }
+      .section-label { font-size: 17px; font-weight: 760; fill: #444A2E; letter-spacing: 2.2px; }
+      .section-title { font-size: 30px; font-weight: 700; fill: #1A1A1A; }
+      .card-title { font-size: 25px; font-weight: 680; fill: #1A1A1A; }
+      .card-copy { font-size: 19px; font-weight: 440; fill: #636366; }
+      .card-detail { font-size: 17px; font-weight: 520; fill: #444A2E; }
+      .compact-title { font-size: 20px; font-weight: 680; fill: #1A1A1A; }
+      .compact-copy { font-size: 17px; font-weight: 440; fill: #636366; }
+      .compact-detail { font-size: 16px; font-weight: 520; fill: #444A2E; }
+      .tag { font-size: 15px; font-weight: 720; fill: #444A2E; letter-spacing: 0.7px; }
+      .flow-muted { font-size: 16px; font-weight: 610; fill: #636366; }
+      .step-chip { fill: #F6F7F1; stroke: #D8DCCB; stroke-width: 1.5; }
+      .step-number-bg { fill: #444A2E; }
+      .step-number { font-size: 15px; font-weight: 760; fill: #FFFFFF; }
+      .step-title { font-size: 16px; font-weight: 700; fill: #444A2E; }
+      .step-detail { font-size: 15px; font-weight: 570; fill: #636366; }
+      .note { font-size: 17px; font-weight: 440; fill: #636366; }
+      .solid-flow { fill: none; stroke: #444A2E; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+      .direct-flow { fill: none; stroke: #444A2E; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; marker-start: url(#arrow); marker-end: url(#arrow); }
+      .async-flow { fill: none; stroke: #8E8E93; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 11 11; marker-end: url(#arrowMuted); }
+    </style>
+  </defs>
+
+  <rect width="2000" height="1200" fill="#FAFAF8"/>
+  <circle cx="1845" cy="115" r="180" fill="#444A2E" opacity="0.045"/>
+  <circle cx="75" cy="1110" r="210" fill="#444A2E" opacity="0.035"/>
+
+  <text x="80" y="87" class="title">How Muninn turns a save into a useful memory</text>
+  <text x="80" y="130" class="subtitle">Direct object storage keeps media off the API path; asynchronous AI analysis keeps saving responsive.</text>
+
+  <!-- Primary system boundaries -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="190" width="500" height="830" rx="34" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+    <rect x="750" y="190" width="500" height="830" rx="34" fill="#FFFFFF" stroke="#D8DCCB" stroke-width="2.5"/>
+    <rect x="1420" y="190" width="500" height="830" rx="34" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  </g>
+
+  <!-- Column headers -->
+  <text x="120" y="238" class="section-label">APPLE CLIENT</text>
+  <text x="120" y="276" class="section-title">Capture &amp; revisit</text>
+
+  <text x="790" y="238" class="section-label">RENDER · DEPLOYMENT TARGET</text>
+  <text x="790" y="276" class="section-title">Portable backend</text>
+
+  <text x="1460" y="238" class="section-label">EXTERNAL SERVICES &amp; SOURCES</text>
+  <text x="1460" y="276" class="section-title">Data, storage &amp; AI</text>
+
+  <!-- Client components -->
+  <rect x="120" y="315" width="420" height="185" rx="24" fill="#F6F7F1" stroke="#D8DCCB" stroke-width="2"/>
+  <rect x="148" y="343" width="66" height="66" rx="17" fill="#444A2E"/>
+  <text x="181" y="386" text-anchor="middle" font-size="34" font-weight="760" fill="#FFFFFF">M</text>
+  <text x="238" y="365" class="card-title">.NET MAUI app</text>
+  <text x="238" y="397" class="card-copy">iOS · Mac Catalyst</text>
+  <text x="148" y="458" class="card-detail">Inbox · Digest · Search · Archive</text>
+
+  <rect x="120" y="535" width="198" height="145" rx="22" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="148" y="574" class="compact-title">Share extension</text>
+  <text x="148" y="608" class="compact-copy">URL handoff via</text>
+  <text x="148" y="635" class="compact-copy">App Group</text>
+
+  <rect x="342" y="535" width="198" height="145" rx="22" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="370" y="574" class="compact-title">iOS Photos</text>
+  <text x="370" y="608" class="compact-copy">Screenshot review</text>
+  <text x="370" y="635" class="compact-copy">and upload queue</text>
+
+  <rect x="120" y="715" width="420" height="115" rx="22" fill="#F9F9F7" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="148" y="758" class="compact-title">SecureStorage</text>
+  <text x="148" y="792" class="compact-copy">JWT token on the device</text>
+
+  <rect x="120" y="865" width="420" height="105" rx="22" fill="#F9F9F7" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="148" y="908" class="compact-title">Local configuration</text>
+  <text x="148" y="942" class="compact-copy">Environment-specific API base URL</text>
+
+  <!-- Backend components -->
+  <rect x="790" y="315" width="420" height="260" rx="24" fill="#F6F7F1" stroke="#D8DCCB" stroke-width="2"/>
+  <rect x="818" y="343" width="122" height="30" rx="15" fill="#E8EBDD"/>
+  <text x="879" y="364" text-anchor="middle" class="tag">JAVA 21</text>
+  <text x="818" y="413" class="card-title">Spring Boot REST API</text>
+  <text x="818" y="451" class="card-copy">Spring Security · stateless JWT</text>
+  <text x="818" y="485" class="card-copy">Save, account &amp; category endpoints</text>
+  <text x="818" y="519" class="card-copy">Presigned R2 PUT / GET URLs</text>
+  <text x="818" y="551" class="card-detail">BCrypt · rate limiting · validation</text>
+
+  <rect x="790" y="615" width="420" height="245" rx="24" fill="#FFFFFF" stroke="#D8DCCB" stroke-width="2"/>
+  <rect x="818" y="643" width="124" height="30" rx="15" fill="#F2F2EF"/>
+  <text x="880" y="664" text-anchor="middle" class="tag">ASYNC</text>
+  <text x="818" y="713" class="card-title">Bounded analysis executor</text>
+  <text x="818" y="752" class="card-copy">Fetch webpage or R2 image</text>
+  <text x="818" y="786" class="card-copy">Request structured Gemini analysis</text>
+  <text x="818" y="820" class="card-copy">Persist result after save returns</text>
+
+  <rect x="790" y="900" width="420" height="70" rx="22" fill="#F9F9F7" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="818" y="943" class="card-detail">Multi-stage Docker image · runtime secrets</text>
+
+  <!-- Managed service components -->
+  <rect x="1460" y="315" width="420" height="150" rx="24" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  <rect x="1488" y="343" width="178" height="30" rx="15" fill="#F2F2EF"/>
+  <text x="1577" y="364" text-anchor="middle" class="tag">PRODUCTION TARGET</text>
+  <text x="1488" y="413" class="card-title">Neon PostgreSQL</text>
+  <text x="1488" y="445" class="card-copy">Users · saves · analyses · categories</text>
+
+  <rect x="1460" y="500" width="420" height="150" rx="24" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="1488" y="544" class="card-title">Cloudflare R2</text>
+  <text x="1488" y="578" class="card-copy">Private screenshot and image objects</text>
+  <text x="1488" y="614" class="card-detail">S3-compatible · short-lived URLs</text>
+
+  <rect x="1460" y="685" width="420" height="150" rx="24" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="1488" y="729" class="card-title">Gemini 2.5 Flash</text>
+  <text x="1488" y="763" class="card-copy">Vision + link-content analysis</text>
+  <text x="1488" y="799" class="card-detail">Intent · category · action · text</text>
+
+  <rect x="1460" y="870" width="420" height="100" rx="24" fill="#F9F9F7" stroke="#E5E5EA" stroke-width="2"/>
+  <text x="1488" y="912" class="compact-title">Public webpages</text>
+  <text x="1488" y="944" class="compact-copy">HTML extraction for link saves</text>
+
+  <!-- Data flows (drawn over boundaries for readability) -->
+  <path d="M 580 414 L 750 414" class="solid-flow"/>
+  <rect x="600" y="390" width="130" height="48" rx="24" class="step-chip"/>
+  <circle cx="624" cy="414" r="15" class="step-number-bg"/>
+  <text x="624" y="419" text-anchor="middle" class="step-number">1</text>
+  <text x="648" y="419" class="step-title">Request</text>
+  <text x="665" y="462" text-anchor="middle" class="step-detail">HTTPS · JSON + JWT</text>
+
+  <path d="M 1250 390 L 1420 390" class="solid-flow"/>
+  <rect x="1258" y="366" width="150" height="48" rx="24" class="step-chip"/>
+  <circle cx="1282" cy="390" r="15" class="step-number-bg"/>
+  <text x="1282" y="395" text-anchor="middle" class="step-number">3</text>
+  <text x="1306" y="395" class="step-title">Persist save</text>
+
+  <path d="M 580 610 L 645 610 L 645 1045 L 1950 1045 L 1950 575 L 1880 575" class="direct-flow"/>
+  <rect x="700" y="1021" width="600" height="48" rx="24" class="step-chip"/>
+  <circle cx="724" cy="1045" r="15" class="step-number-bg"/>
+  <text x="724" y="1050" text-anchor="middle" class="step-number">2</text>
+  <text x="748" y="1050" class="step-title">Transfer media</text>
+  <text x="876" y="1050" class="step-detail">Presigned PUT / GET · image bytes bypass API</text>
+
+  <path d="M 1250 690 L 1340 690 L 1340 575 L 1420 575" class="async-flow"/>
+  <text x="1324" y="661" text-anchor="end" class="flow-muted">Read image</text>
+
+  <path d="M 1250 760 L 1420 760" class="async-flow"/>
+  <rect x="1268" y="736" width="140" height="48" rx="24" class="step-chip"/>
+  <circle cx="1292" cy="760" r="15" class="step-number-bg"/>
+  <text x="1292" y="765" text-anchor="middle" class="step-number">4</text>
+  <text x="1316" y="765" class="step-title">Analyze</text>
+
+  <path d="M 1250 815 L 1320 815 L 1320 920 L 1420 920" class="async-flow"/>
+  <text x="1304" y="895" text-anchor="end" class="flow-muted">Fetch HTML</text>
+
+  <path d="M 1210 675 L 1275 675 L 1275 450 L 1420 450" class="async-flow"/>
+  <rect x="1250" y="426" width="158" height="48" rx="24" class="step-chip"/>
+  <circle cx="1274" cy="450" r="15" class="step-number-bg"/>
+  <text x="1274" y="455" text-anchor="middle" class="step-number">5</text>
+  <text x="1298" y="455" class="step-title">Persist result</text>
+
+  <!-- Footer legend and deployment accuracy note -->
+  <line x1="80" y1="1080" x2="1920" y2="1080" stroke="#E5E5EA" stroke-width="2"/>
+  <path d="M 84 1128 L 156 1128" class="solid-flow"/>
+  <text x="178" y="1134" class="note">Request / data flow</text>
+  <path d="M 430 1128 L 502 1128" class="async-flow"/>
+  <text x="524" y="1134" class="note">Background analysis</text>
+  <rect x="765" y="1104" width="1075" height="52" rx="22" fill="#F2F2EF"/>
+  <text x="1302" y="1137" text-anchor="middle" class="note">Configured cloud architecture; the latest backend and schema currently run locally.</text>
+</svg>

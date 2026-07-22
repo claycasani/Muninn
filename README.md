@@ -2,8 +2,7 @@
 
 > Your memory, returned — turn forgotten screenshots and links into organized, actionable reminders.
 
-![Muninn hero — iPhone and Mac app overview]()
-<!-- HERO ASSET: Replace the empty URL above with a 2400×1350 PNG or WebP showing the iPhone Inbox in front of the Mac app, with real (sanitized) AI analysis cards visible. Keep important content inside the center 2000×1100 safe area. -->
+![Muninn wordmark and raven logo](docs/assets/muninn_hero.webp)
 
 [![.NET MAUI](https://img.shields.io/badge/.NET_MAUI-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/apps/maui)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -16,22 +15,41 @@ Muninn is a .NET MAUI app for iOS and Mac Catalyst that saves screenshots and li
 
 The product loop is simple: capture something, let the analysis happen in the background, revisit it in the Inbox or Digest, then complete or archive it when it is no longer pending.
 
-## Status and demo
+## Status
 
 Cloud deployment is production-shaped but not currently live. The repository includes a Dockerized **Render** service definition and environment-driven configuration for an external **Neon PostgreSQL** database. A previous backend revision was exercised on Render; the latest backend and schema currently run locally. Cloudflare R2 stores image objects, while PostgreSQL stores save records, object keys, and analysis metadata.
 
 The core link and image analysis paths are implemented. The iOS screenshot-review workflow and Liquid Glass-inspired chrome are active development areas; see [Known limitations](#known-limitations-and-roadmap) for the device-memory and verification caveats.
 
-[Watch the demo video](DEMO_URL_TODO)
-<!-- DEMO ASSET: Replace DEMO_URL_TODO with a 60–90 second video showing: share/paste a link, save a screenshot, background analysis completing, search/category filtering, Digest, and Complete/Archive. Blur all accounts, tokens, URLs, and personal photo content. -->
+## Product tour
 
-![Muninn product screenshots]()
-<!-- SCREENSHOT ASSET: Replace the empty URL with a 2400×1200 contact sheet containing 4–5 labeled captures: Inbox, screenshot review, Save Detail, Digest, and Archive. Use simulator/device captures with sanitized data. -->
+<p align="center">
+  <a href="docs/assets/01%20%E2%80%94%20Inbox.jpg">
+    <img src="docs/assets/01%20%E2%80%94%20Inbox.jpg" width="48%" alt="Muninn Inbox organizing saved links and screenshots by category">
+  </a>
+  <a href="docs/assets/02%20%E2%80%94%20Screenshot%20Review.jpg">
+    <img src="docs/assets/02%20%E2%80%94%20Screenshot%20Review.jpg" width="48%" alt="Muninn screenshot review queue with Save and Ignore actions">
+  </a>
+</p>
+
+<p align="center">
+  <a href="docs/assets/03%20%E2%80%94%20AI%20Save%20Detail.jpg">
+    <img src="docs/assets/03%20%E2%80%94%20AI%20Save%20Detail.jpg" width="48%" alt="Muninn Save Detail showing AI-inferred intent, category, and suggested action">
+  </a>
+  <a href="docs/assets/04%20%E2%80%94%20Digest.jpg">
+    <img src="docs/assets/04%20%E2%80%94%20Digest.jpg" width="48%" alt="Muninn Digest resurfacing recent saves in one focused view">
+  </a>
+</p>
+
+<p align="center">
+  <a href="docs/assets/05%20%E2%80%94%20Search%20and%20Archive.jpg">
+    <img src="docs/assets/05%20%E2%80%94%20Search%20and%20Archive.jpg" width="48%" alt="Muninn search and archive view for completed saves">
+  </a>
+</p>
 
 ## Architecture
 
-![Muninn architecture diagram]()
-<!-- ARCHITECTURE ASSET: Replace the empty URL with a 2000×1200 SVG or PNG. Show: iOS/Mac Catalyst client → Spring Boot REST API → Neon Postgres; client → presigned PUT → Cloudflare R2; Spring async executor → URL fetch or R2 read → Gemini → analyses table; Render as the backend deployment target. -->
+![Muninn architecture: Apple client, Spring Boot API, PostgreSQL, object storage, and asynchronous Gemini analysis](docs/assets/muninn-architecture.svg)
 
 Muninn uses one client codebase and a portable, containerized API:
 

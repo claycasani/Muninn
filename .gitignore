@@ -23,6 +23,9 @@ GEMINI.md
 .github/copilot-instructions.md
 .github/instructions/
 
+# Editable design source (publish exported web assets only)
+docs/assets/*.af
+
 # IDE and user-local state
 .idea/
 **/.idea/
