@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Muninn.Controls.GlassTabBar"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+    VerticalOptions="End"
+    HorizontalOptions="Center"
+    Margin="0,0,0,0">
+
+    <!--
+    Centered pill sized to its three tabs (NOT full width). Two layers:
+      1. The Syncfusion glass pill + the visual content (selected-tab capsule,
+         icons, labels) — all InputTransparent because the glass view passes
+         touches through.
+      2. A transparent tap overlay (one BoxView per tab) on top that captures
+         taps so they don't fall through to the cards scrolling behind the pill.
+    Both layers share the same fixed tab width / spacing / padding so the tap
+    targets line up exactly with the visible tabs.
+    -->
+    <Grid WidthRequest="305" HeightRequest="68">
+
+        <!-- Layer 1: glass/fallback pill. The ctor removes whichever surface the
+             LiquidGlassCompatibility gate rules out. -->
+        <Grid
+            x:Name="SurfaceHost"
+            WidthRequest="305"
+            HeightRequest="68"
+            InputTransparent="True">
+
+            <!-- Genuine Liquid Glass pill. EffectType=Regular (frosted adaptive
+                 material, like the iOS-Music floating pill) + milky ivory tint so
+                 the tabs stay readable over busy card content; the empty transparent
+                 child is required for Syncfusion to render the glass material
+                 (visual tab content is overlaid in Layer 2). -->
+            <core:SfGlassEffectView
+                x:Name="GlassSurface"
+                WidthRequest="305"
+                HeightRequest="68"
+                CornerRadius="34"
+                EffectType="Regular"
+                EnableShadowEffect="True"
+                BackgroundColor="#66F7F7F2"
+                Padding="0"
+                InputTransparent="True">
+                <Grid BackgroundColor="Transparent" />
+            </core:SfGlassEffectView>
+
+            <!-- Specular rim (see ChromeGlassButton): vertical-gradient stroke that
+                 reads as the native lens-edge highlight. Removed with GlassSurface
+                 in fallback mode. -->
+            <Border
+                x:Name="GlassRim"
+                WidthRequest="305"
+                HeightRequest="68"
+                BackgroundColor="Transparent"
+                StrokeThickness="0.8"
+                InputTransparent="True">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="34" />
+                </Border.StrokeShape>
+                <!-- Thin dark hairline, matching ChromeGlassButton's native lens edge. -->
+                <Border.Stroke>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#30000000" Offset="0.0" />
+                        <GradientStop Color="#10000000" Offset="0.45" />
+                        <GradientStop Color="#3A000000" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Stroke>
+            </Border>
+
+            <!-- Plain fallback pill (kill-switch path: MUNINN_DISABLE_GLASS). -->
+            <Border
+                x:Name="FallbackSurface"
+                Style="{StaticResource GlassTabBarFallback}"
+                InputTransparent="True" />
+        </Grid>
+
+        <!-- Layer 2: visual content -->
+        <HorizontalStackLayout
+            Spacing="6"
+            Padding="4"
+            HeightRequest="68"
+            InputTransparent="True">
+
+            <!-- Inbox -->
+            <Grid WidthRequest="95">
+                <Border
+                    IsVisible="{Binding IsInboxSelected, Source={x:Reference Root}}"
+                    BackgroundColor="#16000000"
+                    StrokeThickness="0"
+                    Margin="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="30" />
+                    </Border.StrokeShape>
+                </Border>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="3">
+                    <Grid HeightRequest="32" WidthRequest="40" HorizontalOptions="Center">
+                        <Image Source="tab_inbox_on.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsInboxSelected, Source={x:Reference Root}}" />
+                        <Image Source="tab_inbox_off.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsInboxSelected, Source={x:Reference Root}, Converter={StaticResource InverseBoolConverter}}" />
+                    </Grid>
+                    <Label Text="Inbox" FontSize="12" FontAttributes="Bold"
+                           TextColor="{Binding InboxTint, Source={x:Reference Root}}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Digest -->
+            <Grid WidthRequest="95">
+                <Border
+                    IsVisible="{Binding IsDigestSelected, Source={x:Reference Root}}"
+                    BackgroundColor="#16000000"
+                    StrokeThickness="0"
+                    Margin="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="30" />
+                    </Border.StrokeShape>
+                </Border>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="3">
+                    <Grid HeightRequest="32" WidthRequest="40" HorizontalOptions="Center">
+                        <Image Source="tab_digest_on.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsDigestSelected, Source={x:Reference Root}}" />
+                        <Image Source="tab_digest_off.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsDigestSelected, Source={x:Reference Root}, Converter={StaticResource InverseBoolConverter}}" />
+                    </Grid>
+                    <Label Text="Digest" FontSize="11" FontAttributes="Bold"
+                           TextColor="{Binding DigestTint, Source={x:Reference Root}}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Archive -->
+            <Grid WidthRequest="95">
+                <Border
+                    IsVisible="{Binding IsArchiveSelected, Source={x:Reference Root}}"
+                    BackgroundColor="#16000000"
+                    StrokeThickness="0"
+                    Margin="2">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="30" />
+                    </Border.StrokeShape>
+                </Border>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="3">
+                    <Grid HeightRequest="32" WidthRequest="40" HorizontalOptions="Center">
+                        <Image Source="tab_archive_on.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsArchiveSelected, Source={x:Reference Root}}" />
+                        <Image Source="tab_archive_off.png" Aspect="AspectFit"
+                               IsVisible="{Binding IsArchiveSelected, Source={x:Reference Root}, Converter={StaticResource InverseBoolConverter}}" />
+                    </Grid>
+                    <Label Text="Archive" FontSize="11" FontAttributes="Bold"
+                           TextColor="{Binding ArchiveTint, Source={x:Reference Root}}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </HorizontalStackLayout>
+
+        <!-- Layer 3: transparent tap overlay (same widths/spacing/padding) -->
+        <HorizontalStackLayout Spacing="6" Padding="4" HorizontalOptions="Center">
+            <BoxView WidthRequest="95" HeightRequest="60" Color="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnInbox" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <BoxView WidthRequest="95" HeightRequest="60" Color="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDigest" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <BoxView WidthRequest="95" HeightRequest="60" Color="Transparent">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnArchive" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentView>

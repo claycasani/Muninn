@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.AuthPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:Muninn.ViewModels"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+
+    <ScrollView VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout
+            Padding="{StaticResource ScreenMargin}"
+            Spacing="0">
+
+            <!-- Top spacer (SpaceXXL + safe area breathing room) -->
+            <BoxView HeightRequest="{StaticResource SpaceXXL}" Color="Transparent" />
+            <BoxView HeightRequest="{StaticResource SpaceXXL}" Color="Transparent" />
+
+            <Image
+                Source="muninn_bird.png"
+                WidthRequest="120"
+                HeightRequest="120"
+                HorizontalOptions="Center" />
+            <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+            
+            <!-- Wordmark (replaces the "Muninn" title text; sized to match the
+                 28pt title's footprint. Aspect ratio 284:62 ≈ 4.58:1). -->
+            <Image
+                Source="muninn_wordmark.png"
+                WidthRequest="145"
+                HeightRequest="32"
+                Aspect="AspectFit"
+                HorizontalOptions="Center" />
+
+            <!-- Tagline -->
+            <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+            <Label
+                Style="{StaticResource TaglineLabel}"
+                Text="your memory, returned" />
+
+            <!-- Gap before inputs -->
+            <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+            <!-- Email input -->
+            <Border Style="{StaticResource InputBorder}">
+                <Entry
+                    Style="{StaticResource InputEntry}"
+                    Placeholder="Email"
+                    Text="{Binding Email}"
+                    Keyboard="Email"
+                    AutomationId="EmailEntry" />
+            </Border>
+
+            <!-- 12pt gap -->
+            <BoxView HeightRequest="12" Color="Transparent" />
+
+            <!-- Password input -->
+            <Border Style="{StaticResource InputBorder}">
+                <Entry
+                    Style="{StaticResource InputEntry}"
+                    Placeholder="Password"
+                    Text="{Binding Password}"
+                    IsPassword="True"
+                    AutomationId="PasswordEntry" />
+            </Border>
+
+            <!-- Error message -->
+            <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                TextColor="Red"
+                HorizontalTextAlignment="Center"
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding ErrorMessage, Converter={x:StaticResource StringNotEmptyConverter}}" />
+
+            <!-- Gap before button -->
+            <BoxView HeightRequest="{StaticResource SpaceMD}" Color="Transparent" />
+
+            <!-- Primary action button -->
+            <Button
+                Style="{StaticResource ButtonPrimary}"
+                Text="{Binding ActionButtonText}"
+                Command="{Binding SubmitCommand}"
+                IsEnabled="{Binding SubmitCommand.IsRunning, Converter={x:StaticResource InverseBoolConverter}}"
+                AutomationId="SubmitButton" />
+
+            <!-- SpaceSM gap -->
+            <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+
+            <!-- Toggle sign in / register -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="0">
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="{Binding ToggleText}"
+                    VerticalTextAlignment="Center" />
+                <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    TextColor="{StaticResource ColorAccentTintText}"
+                    Text="{Binding ToggleLinkText}"
+                    VerticalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleModeCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

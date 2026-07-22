@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.ManageCategoriesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:models="clr-namespace:Muninn.Models"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="Categories">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <controls:GlassNavHeader Grid.Row="0" Title="Categories" Margin="24,16,24,4" />
+
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Margin="{StaticResource ScreenMargin}" Spacing="{StaticResource SpaceMD}">
+
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="Categories the AI sorts your saves into. Rename to relabel every save in it; delete to have the AI re-sort those saves into your other categories." />
+
+                <!-- Add a category -->
+                <Border Style="{StaticResource InputBorder}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Entry
+                            Grid.Column="0"
+                            Style="{StaticResource InputEntry}"
+                            Placeholder="New category name"
+                            Text="{Binding NewCategoryName}"
+                            ReturnType="Done"
+                            ReturnCommand="{Binding AddCommand}" />
+                        <Button
+                            Grid.Column="1"
+                            Text="Add"
+                            Style="{StaticResource ButtonPrimary}"
+                            HeightRequest="30"
+                            FontSize="13"
+                            CornerRadius="9"
+                            Padding="10,0"
+                            VerticalOptions="Center"
+                            Command="{Binding AddCommand}"
+                            IsVisible="{Binding NewCategoryName, Converter={StaticResource StringNotEmptyConverter}}" />
+                    </Grid>
+                </Border>
+
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    TextColor="{StaticResource ColorDestructive}"
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}" />
+
+                <!-- Category list -->
+                <Border Style="{StaticResource SettingsCard}">
+                    <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding Categories}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:CategoryModel">
+                                <Grid
+                                    Padding="{StaticResource SettingsRowPadding}"
+                                    ColumnDefinitions="*,Auto,Auto"
+                                    ColumnSpacing="{StaticResource SpaceMD}">
+                                    <Label
+                                        Grid.Column="0"
+                                        Style="{StaticResource SettingsRowTitle}"
+                                        VerticalOptions="Center"
+                                        Text="{Binding Name}" />
+                                    <ImageButton
+                                        Grid.Column="1"
+                                        Source="icon_pencil.png"
+                                        BackgroundColor="Transparent"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        Padding="9"
+                                        Aspect="AspectFit"
+                                        SemanticProperties.Description="Rename category"
+                                        Clicked="OnRenameClicked" />
+                                    <ImageButton
+                                        Grid.Column="2"
+                                        Source="icon_trash_red.png"
+                                        BackgroundColor="Transparent"
+                                        WidthRequest="40"
+                                        HeightRequest="40"
+                                        Padding="9"
+                                        Aspect="AspectFit"
+                                        SemanticProperties.Description="Delete category"
+                                        Clicked="OnDeleteClicked" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,15 @@
+# Tell GitHub Linguist to ignore generated/platform code so the language
+# breakdown reflects the code we actually wrote: Java, C#, and SQL.
+
+# MAUI platform scaffolding (Xcode, Android, Windows boilerplate)
+app/Platforms/**        linguist-generated=true
+
+# Windows Forms / MAUI designer files
+*.designer.cs           linguist-generated=true
+
+# Build output
+obj/**                  linguist-generated=true
+bin/**                  linguist-generated=true
+
+# Native assembly files emitted by the AOT/Mono toolchain
+*.s                     linguist-generated=true

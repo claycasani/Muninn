@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Muninn.Controls.SearchBarView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="Root">
+
+    <Border
+        x:Name="SearchBorder"
+        Style="{StaticResource InputBorder}">
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+            <Image
+                Grid.Column="0"
+                Source="icon_search.png"
+                WidthRequest="20"
+                HeightRequest="20"
+                VerticalOptions="Center" />
+
+            <Entry
+                x:Name="SearchEntry"
+                Grid.Column="1"
+                Style="{StaticResource InputEntry}"
+                Placeholder="{Binding Placeholder, Source={x:Reference Root}}"
+                Text="{Binding Text, Source={x:Reference Root}, Mode=TwoWay}"
+                ReturnType="Done"
+                Completed="OnSearchCompleted"
+                Unfocused="OnSearchUnfocused" />
+
+            <ImageButton
+                Grid.Column="2"
+                Source="icon_clear.png"
+                BackgroundColor="Transparent"
+                WidthRequest="36"
+                HeightRequest="36"
+                Padding="8"
+                VerticalOptions="Center"
+                IsVisible="{Binding Text, Source={x:Reference Root}, Converter={StaticResource StringNotEmptyConverter}}"
+                Clicked="OnClearClicked" />
+        </Grid>
+    </Border>
+
+</ContentView>

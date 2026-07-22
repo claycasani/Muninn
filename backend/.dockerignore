@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+
+target/
+build/
+out/
+
+.idea/
+.vscode/
+*.iml
+
+.DS_Store
+
+Dockerfile
+.dockerignore

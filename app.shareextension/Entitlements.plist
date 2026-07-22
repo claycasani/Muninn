@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+      App Group shared with the main Muninn app.
+      The extension writes the shared URL to NSUserDefaults(suiteName: group id).
+      The main app reads it on the next foreground/login via Preferences.Get(key, "", groupId).
+      Both targets must declare the same group ID here.
+    -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.claycasani.muninn</string>
+    </array>
+</dict>
+</plist>

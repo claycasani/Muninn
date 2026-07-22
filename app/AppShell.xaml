@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Muninn.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Muninn.Views"
+    Shell.BackgroundColor="{StaticResource ColorBackground}"
+    Shell.TabBarBackgroundColor="Transparent"
+    Shell.TabBarForegroundColor="{StaticResource ColorAccent}"
+    Shell.TabBarUnselectedColor="{StaticResource ColorTextSecondary}"
+    Shell.NavBarHasShadow="False">
+
+    <!-- Native tab bar hidden: a custom Syncfusion glass tab bar (controls:GlassTabBar)
+         is overlaid on each tab page so content scrolls full-height behind the floating
+         pill. Shell still owns routing; the custom bar switches tabs via //routes. -->
+    <TabBar Shell.TabBarIsVisible="False">
+
+        <ShellContent
+            Title="Inbox"
+            Icon="tab_inbox.svg"
+            Route="InboxPage"
+            ContentTemplate="{DataTemplate views:InboxPage}" />
+
+        <ShellContent
+            Title="Digest"
+            Icon="tab_digest.svg"
+            Route="DigestPage"
+            ContentTemplate="{DataTemplate views:DigestPage}" />
+
+        <ShellContent
+            Title="Archive"
+            Icon="tab_archive.svg"
+            Route="ArchivePage"
+            ContentTemplate="{DataTemplate views:ArchivePage}" />
+
+    </TabBar>
+
+</Shell>

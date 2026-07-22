@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Muninn.Controls.ChromeGlassButton"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:core="clr-namespace:Syncfusion.Maui.Core;assembly=Syncfusion.Maui.Core"
+    BackgroundColor="Transparent"
+    WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+    HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}">
+
+    <!-- Root Grid does NOT clip. The badge must be a sibling of VisualFrame, not a
+         child: Border clips its content to the StrokeShape, so a badge inside the
+         circular frame — offset past the corner by its negative margin — is clipped
+         to nothing (the bug that silently killed the badge for weeks). -->
+    <Grid BackgroundColor="Transparent">
+        <Border
+            x:Name="VisualFrame"
+            WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+            HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+            BackgroundColor="Transparent"
+            StrokeThickness="0.8">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="{Binding CornerRadius, Source={x:Reference Root}}" />
+            </Border.StrokeShape>
+            <!-- The lens-edge hairline lives on VisualFrame itself — the Border that
+                 DEFINES the button's clipping circle — so it sits exactly on the
+                 button's true edge by construction. (A separate rim layer rendered
+                 visibly inside the glass edge on-device.) Thin dark gradient per the
+                 native Mail reference. Zeroed in fallback mode (fallback surface has
+                 its own stroke). -->
+            <Border.Stroke>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#30000000" Offset="0.0" />
+                    <GradientStop Color="#10000000" Offset="0.45" />
+                    <GradientStop Color="#3A000000" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Stroke>
+
+            <!-- Touch host wraps the button content per Syncfusion's parent-control
+                 pattern, but is used ONLY as the touch source (all effects None):
+                 its canvas-drawn Highlight/Ripple render behind the native glass
+                 platform view and are invisible. The native-press look (swell +
+                 white glow + spring settle, no ripple) is done by the TouchDown/
+                 TouchUp handlers animating VisualFrame and the glass tint directly. -->
+            <core:SfEffectsView
+                x:Name="EffectsHost"
+                BackgroundColor="Transparent"
+                Background="Transparent"
+                WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                TouchDownEffects="None"
+                TouchUpEffects="None"
+                TouchDown="OnEffectsTouchDown"
+                TouchUp="OnEffectsTouchUp">
+
+                <Grid
+                    x:Name="SurfaceHost"
+                    BackgroundColor="Transparent"
+                    WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                    HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}">
+
+                    <!-- Genuine Liquid Glass surface. The empty transparent child is
+                         required: Syncfusion renders the glass material behind its
+                         content, so the glyph is overlaid as a sibling above instead.
+                         Removed in the ctor when glass is disabled.
+
+                         EffectType=Regular (not Clear): Clear is Apple's most
+                         transparent material and made the buttons unreadable over
+                         busy content; Regular is the frosted adaptive material the
+                         native Mail/Music chrome buttons use. The milky ivory tint
+                         on top further lifts glyph legibility. -->
+                    <core:SfGlassEffectView
+                        x:Name="GlassSurface"
+                        WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                        HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                        CornerRadius="{Binding CornerRadius, Source={x:Reference Root}}"
+                        EffectType="Regular"
+                        EnableShadowEffect="True"
+                        BackgroundColor="#3DF7F7F2"
+                        Padding="0">
+                        <Grid BackgroundColor="Transparent" />
+                    </core:SfGlassEffectView>
+
+                    <!-- Plain fallback surface (kill-switch path: MUNINN_DISABLE_GLASS).
+                         Removed in the ctor when glass is active. -->
+                    <Border
+                        x:Name="FallbackSurface"
+                        Style="{StaticResource SettingsGlassButton}"
+                        WidthRequest="{Binding ButtonSize, Source={x:Reference Root}}"
+                        HeightRequest="{Binding ButtonSize, Source={x:Reference Root}}" />
+
+                    <Image
+                        Source="{Binding IconSource, Source={x:Reference Root}}"
+                        WidthRequest="{Binding IconSize, Source={x:Reference Root}}"
+                        HeightRequest="{Binding IconSize, Source={x:Reference Root}}"
+                        TranslationX="{Binding IconTranslationX, Source={x:Reference Root}}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Aspect="AspectFit"
+                        InputTransparent="True" />
+                    <Label
+                        Text="{Binding IconText, Source={x:Reference Root}}"
+                        TextColor="{Binding IconColor, Source={x:Reference Root}}"
+                        FontSize="{Binding IconTextSize, Source={x:Reference Root}}"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill"
+                        InputTransparent="True"
+                        IsVisible="{Binding HasIconText, Source={x:Reference Root}}" />
+                </Grid>
+            </core:SfEffectsView>
+        </Border>
+
+        <!-- Pill badge: fixed 20pt height, width grows with the text (min 20 so a
+             single digit stays a circle). Auto width + horizontal padding is what
+             lets "99+" fit without clipping; CornerRadius = half the height keeps
+             the ends fully rounded at any width. Anchored to the top-right corner
+             and nudged outward so it overlaps the button edge like a native badge. -->
+        <Border
+            HeightRequest="20"
+            MinimumWidthRequest="20"
+            Padding="5,0"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="0,-7,-7,0"
+            BackgroundColor="{StaticResource ColorAccent}"
+            Stroke="White"
+            StrokeThickness="2"
+            InputTransparent="True"
+            IsVisible="{Binding BadgeVisible, Source={x:Reference Root}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+            <Label
+                Text="{Binding BadgeText, Source={x:Reference Root}}"
+                TextColor="White"
+                FontSize="11"
+                FontAttributes="Bold"
+                LineBreakMode="NoWrap"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Center"
+                VerticalTextAlignment="Center" />
+        </Border>
+    </Grid>
+</ContentView>

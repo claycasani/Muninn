@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.ScreenshotsReviewPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:models="clr-namespace:Muninn.Models"
+    xmlns:vm="clr-namespace:Muninn.ViewModels"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="Screenshots">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header: glass back button + title + count, matching the other pages -->
+        <Grid
+            Grid.Row="0"
+            ColumnDefinitions="Auto,*,Auto"
+            ColumnSpacing="12"
+            Margin="24,16,24,4">
+            <controls:ChromeGlassButton
+                Grid.Column="0"
+                WidthRequest="50"
+                HeightRequest="50"
+                IconSource="icon_back.png"
+                IconTranslationX="-1.5"
+                VerticalOptions="Center"
+                Clicked="OnBackClicked" />
+            <Label
+                Grid.Column="1"
+                Style="{StaticResource TitleLabel}"
+                Text="Screenshots"
+                VerticalOptions="Center" />
+            <Label
+                Grid.Column="2"
+                Text="{Binding CountLabel}"
+                Style="{StaticResource SecondaryLabel}"
+                VerticalOptions="Center"
+                IsVisible="{Binding HasScreenshots}" />
+        </Grid>
+
+        <ActivityIndicator
+            Grid.RowSpan="2"
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="{StaticResource ColorAccent}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
+        <CollectionView
+            Grid.Row="1"
+            VerticalScrollBarVisibility="Never"
+            ItemsSource="{Binding Screenshots}"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+            Margin="{StaticResource ScreenMargin}">
+
+            <CollectionView.Header>
+                <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ScreenshotCandidate">
+                    <Border
+                        Style="{StaticResource SaveCard}"
+                        Padding="0"
+                        Margin="0,0,0,16">
+                        <Grid RowDefinitions="220,Auto,Auto">
+                            <Grid Grid.Row="0">
+                                <Image
+                                    Source="{Binding ThumbnailSource}"
+                                    Aspect="AspectFill"
+                                    IsVisible="{Binding HasThumbnail}" />
+
+                                <VerticalStackLayout
+                                    Spacing="{StaticResource SpaceSM}"
+                                    Padding="16"
+                                    BackgroundColor="{StaticResource ColorSunken}"
+                                    HorizontalOptions="Fill"
+                                    VerticalOptions="Fill"
+                                    IsVisible="{Binding HasThumbnail, Converter={StaticResource InverseBoolConverter}}">
+                                    <Border
+                                        WidthRequest="48"
+                                        HeightRequest="48"
+                                        BackgroundColor="{StaticResource ColorSurface}"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 14"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Image
+                                            Source="icon_photo.png"
+                                            WidthRequest="22"
+                                            HeightRequest="22"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                    <Label
+                                        Style="{StaticResource SecondaryLabel}"
+                                        HorizontalTextAlignment="Center"
+                                        Text="Preview unavailable" />
+                                </VerticalStackLayout>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPreviewTapped" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+
+                            <HorizontalStackLayout
+                                Grid.Row="1"
+                                Spacing="{StaticResource SpaceXS}"
+                                Padding="16,14,16,0">
+                                <Image
+                                    Source="icon_photo.png"
+                                    WidthRequest="16"
+                                    HeightRequest="16"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="{Binding SourceLabel}" />
+                                <Label
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="·" />
+                                <Label
+                                    Style="{StaticResource SecondaryLabel}"
+                                    Text="{Binding RelativeTime}" />
+                            </HorizontalStackLayout>
+
+                            <Grid
+                                Grid.Row="2"
+                                ColumnDefinitions="*,*"
+                                ColumnSpacing="{StaticResource SpaceSM}"
+                                Padding="16,16,16,16">
+                                <Button
+                                    Grid.Column="0"
+                                    Style="{StaticResource ButtonNeutral}"
+                                    HeightRequest="44"
+                                    Text="Ignore"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ScreenshotsReviewViewModel}}, Path=IgnoreCommand}"
+                                    CommandParameter="{Binding .}" />
+                                <Button
+                                    Grid.Column="1"
+                                    Style="{StaticResource ButtonPrimary}"
+                                    HeightRequest="44"
+                                    Text="↑ Save"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ScreenshotsReviewViewModel}}, Path=SaveCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.Footer>
+                <BoxView HeightRequest="{StaticResource SpaceXXL}" Color="Transparent" />
+            </CollectionView.Footer>
+        </CollectionView>
+
+        <VerticalStackLayout
+            Grid.RowSpan="2"
+            Spacing="{StaticResource SpaceSM}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Margin="0,120,0,0"
+            IsVisible="{Binding ShowEmptyState}">
+            <Border
+                WidthRequest="64"
+                HeightRequest="64"
+                BackgroundColor="{StaticResource ColorSunken}"
+                StrokeThickness="0"
+                StrokeShape="Ellipse"
+                HorizontalOptions="Center">
+                <Label
+                    Text="✓"
+                    FontSize="{StaticResource FontSizeTitle}"
+                    TextColor="{StaticResource ColorTextTertiary}"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center" />
+            </Border>
+            <Label
+                Style="{StaticResource EmptyStateTitle}"
+                Text="You're all caught up" />
+            <Label
+                Style="{StaticResource EmptyStateBody}"
+                MaxLines="2"
+                LineBreakMode="WordWrap"
+                Text="New screenshots will appear here as you take them." />
+        </VerticalStackLayout>
+
+        <Border
+            Grid.RowSpan="2"
+            Style="{StaticResource SaveCard}"
+            BackgroundColor="{StaticResource ColorSurface}"
+            HorizontalOptions="Fill"
+            VerticalOptions="End"
+            Margin="24,0,24,24"
+            IsVisible="{Binding IsSaving}">
+            <HorizontalStackLayout Spacing="{StaticResource SpaceSM}" HorizontalOptions="Center">
+                <ActivityIndicator
+                    IsRunning="{Binding IsSaving}"
+                    Color="{StaticResource ColorAccent}"
+                    WidthRequest="20"
+                    HeightRequest="20" />
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    Text="Saving screenshot…" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <Label
+            Grid.RowSpan="2"
+            Style="{StaticResource SecondaryLabel}"
+            TextColor="{StaticResource ColorDestructive}"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="End"
+            Margin="24,0,24,88"
+            Text="{Binding ErrorMessage}"
+            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+    </Grid>
+</ContentPage>

@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.InboxPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:models="clr-namespace:Muninn.Models"
+    xmlns:vm="clr-namespace:Muninn.ViewModels"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    SafeAreaEdges="None"
+    Title="Inbox">
+
+    <!--
+    Single-row Grid: CollectionView fills the full screen height so cards can
+    physically scroll behind the fixed glass buttons at the top-right corner.
+    The CollectionView.Header carries the title, input, and chips — they scroll
+    off-screen as the user scrolls down, revealing cards behind the glass buttons.
+    Glass buttons are the last child so they render on top (highest z-order).
+    -->
+    <Grid x:Name="RootGrid">
+
+        <!-- Loading indicator: centred in the full page -->
+        <ActivityIndicator
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="{StaticResource ColorAccent}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+
+        <!-- Save cards — fills full screen height -->
+        <CollectionView
+            x:Name="SavesCollection"
+            VerticalScrollBarVisibility="Never"
+            ItemsSource="{Binding SaveGroups}"
+            IsGrouped="True"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+            Margin="24,0,24,-44">
+
+            <CollectionView.Header>
+                <VerticalStackLayout x:Name="HeaderStack" Spacing="0">
+
+                    <!-- Title row. Right-side BoxView reserves room so the title label
+                         never runs into the three glass buttons. -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+                        <Label
+                            Text="Inbox"
+                            Style="{StaticResource TitleLabel}"
+                            VerticalOptions="End" />
+                        <BoxView
+                            Grid.Column="1"
+                            WidthRequest="180"
+                            HeightRequest="50"
+                            Color="Transparent" />
+                    </Grid>
+
+                    <Grid
+                        x:Name="LinkBarHost"
+                        HeightRequest="0"
+                        Opacity="0"
+                        InputTransparent="True"
+                        IsClippedToBounds="True">
+                        <VerticalStackLayout
+                            x:Name="LinkBarContent"
+                            Spacing="0">
+                            <!-- Paste-a-link input -->
+                            <Border
+                                Style="{StaticResource InputBorder}"
+                                Margin="0,16,0,0"
+                                VerticalOptions="Start">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                                    <Image
+                                        Grid.Column="0"
+                                        Source="icon_link.png"
+                                        WidthRequest="20"
+                                        HeightRequest="20"
+                                        VerticalOptions="Center" />
+                                    <Entry
+                                        x:Name="LinkEntry"
+                                        Grid.Column="1"
+                                        Style="{StaticResource InputEntry}"
+                                        Placeholder="Paste a link to save…"
+                                        Text="{Binding LinkInput}"
+                                        Keyboard="Url"
+                                        ReturnCommand="{Binding PasteLinkCommand}"
+                                        ReturnType="Go" />
+                                    <Grid
+                                        Grid.Column="2"
+                                        WidthRequest="36"
+                                        HeightRequest="36"
+                                        VerticalOptions="Center">
+                                        <Image
+                                            Source="icon_photo.png"
+                                            WidthRequest="20"
+                                            HeightRequest="20"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding IsUploadingImage, Converter={StaticResource InverseBoolConverter}}" />
+                                        <ActivityIndicator
+                                            IsRunning="{Binding IsUploadingImage}"
+                                            IsVisible="{Binding IsUploadingImage}"
+                                            Color="{StaticResource ColorAccent}"
+                                            WidthRequest="20"
+                                            HeightRequest="20"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding PickAndUploadImageCommand}" />
+                                        </Grid.GestureRecognizers>
+                                    </Grid>
+                                    <Button
+                                        Grid.Column="3"
+                                        Text="Save"
+                                        Style="{StaticResource ButtonPrimary}"
+                                        HeightRequest="30"
+                                        FontSize="13"
+                                        CornerRadius="9"
+                                        Padding="10,0"
+                                        VerticalOptions="Center"
+                                        Command="{Binding PasteLinkCommand}"
+                                        IsVisible="{Binding LinkInput, Converter={StaticResource StringNotEmptyConverter}}" />
+                                </Grid>
+                            </Border>
+
+                            <BoxView
+                                HeightRequest="1"
+                                Color="{StaticResource ColorSeparator}"
+                                Margin="-24,16,-24,0" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <controls:SearchBarView
+                        x:Name="SearchBar"
+                        Margin="0,16,0,0"
+                        Text="{Binding SearchQuery, Mode=TwoWay}"
+                        CommitCommand="{Binding CommitSearchCommand}"
+                        Placeholder="Search saves…" />
+
+                    <!-- Category filter chips (horizontal scroll via BindableLayout) -->
+                    <ScrollView
+                        x:Name="CategoryChipsScroll"
+                        Orientation="Horizontal"
+                        HorizontalScrollBarVisibility="Never"
+                        Margin="0,12,0,0"
+                        HeightRequest="36">
+                        <HorizontalStackLayout
+                            Spacing="0"
+                            BindableLayout.ItemsSource="{Binding CategoryFilters}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <Border
+                                        Style="{StaticResource FilterChip}"
+                                        BackgroundColor="{Binding BackgroundColor}">
+                                        <Label
+                                            Style="{StaticResource FilterChipLabel}"
+                                            Text="{Binding Name}"
+                                            TextColor="{Binding TextColor}" />
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InboxViewModel}}, Path=SelectCategoryCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <BoxView HeightRequest="{StaticResource SpaceMD}" Color="Transparent" />
+
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate>
+                    <Label
+                        Style="{StaticResource SectionHeaderLabel}"
+                        Text="{Binding Category}" />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:SaveModel">
+                    <Border
+                        Style="{StaticResource SaveCard}"
+                        Margin="0,0,0,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InboxViewModel}}, Path=NavigateToDetailCommand}"
+                                CommandParameter="{Binding Id}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="12">
+
+                            <!-- Favicon / thumbnail slot -->
+                            <Border
+                                Grid.Column="0"
+                                Grid.RowSpan="4"
+                                Style="{StaticResource FaviconContainer}"
+                                VerticalOptions="Start">
+                                <Grid>
+                                    <Label
+                                        Style="{StaticResource FaviconMonogram}"
+                                        Text="{Binding Monogram}" />
+                                    <Image
+                                        Source="{Binding FaviconUrl}"
+                                        Aspect="AspectFit"
+                                        IsVisible="{Binding FaviconUrl, Converter={StaticResource NullToBoolConverter}}" />
+                                    <Image
+                                        Source="{Binding ImageUrl}"
+                                        Aspect="AspectFill"
+                                        IsVisible="{Binding ImageUrl, Converter={StaticResource NullToBoolConverter}}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Row 0: meta + timestamp -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="0"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{Binding MetaLabel}" />
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="0"
+                                Style="{StaticResource SecondaryLabel}"
+                                HorizontalOptions="End"
+                                Text="{Binding RelativeTime}" />
+
+                            <!-- Row 1: title -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="1"
+                                Style="{StaticResource BodyBoldLabel}"
+                                Text="{Binding DisplayTitle}"
+                                TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTertiaryColorConverter}}"
+                                Margin="0,2,0,2" />
+
+                            <!-- Row 2: AI reason line. Single width-constrained Label
+                                 (FormattedString) so the reason wraps to two lines instead
+                                 of running off the card edge. -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Style="{StaticResource SecondaryLabel}"
+                                LineBreakMode="WordWrap"
+                                MaxLines="2"
+                                IsVisible="{Binding AiReason, Converter={StaticResource StringNotEmptyConverter}}">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="✦ " />
+                                        <Span Text="{Binding AiReason}" FontAttributes="Italic" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Style="{StaticResource TertiaryLabel}"
+                                Text="Analyzing…"
+                                IsVisible="{Binding AiReason, Converter={StaticResource StringEmptyConverter}}" />
+
+                            <!-- Row 3: category tag -->
+                            <Border
+                                Grid.Column="1"
+                                Grid.Row="3"
+                                Style="{StaticResource CategoryTag}"
+                                HorizontalOptions="Start"
+                                Margin="0,4,0,0">
+                                <Label
+                                    Style="{StaticResource CategoryTagLabel}"
+                                    Text="{Binding Category, StringFormat='• {0}'}" />
+                            </Border>
+
+                            <!-- Complete circle -->
+                            <Border
+                                Grid.Column="2"
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                WidthRequest="24"
+                                HeightRequest="24"
+                                VerticalOptions="Center"
+                                StrokeThickness="1.5"
+                                Stroke="{Binding IsCompleted, Converter={StaticResource BoolToAccentSeparatorConverter}}"
+                                BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToAccentTransparentConverter}}"
+                                StrokeShape="Ellipse">
+                                <Label
+                                    Text="✓"
+                                    FontSize="12"
+                                    TextColor="White"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center"
+                                    IsVisible="{Binding IsCompleted}" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:InboxViewModel}}, Path=CompleteSaveCommand}"
+                                        CommandParameter="{Binding Id}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.Footer>
+                <!-- Tall footer so the last card can scroll clear of the floating glass tab bar -->
+                <BoxView HeightRequest="120" Color="Transparent" />
+            </CollectionView.Footer>
+
+        </CollectionView>
+
+        <!-- Empty state as a page-level overlay, NOT CollectionView.EmptyView: MAUI
+             positions the EmptyView after the measured header (rendering it low on
+             the screen) and re-measures it when the header animates (the link-bar
+             reveal), which made it vanish. A Grid sibling centers reliably and is
+             immune to header changes. InputTransparent so it never eats card taps. -->
+        <VerticalStackLayout
+            IsVisible="{Binding IsEmptyStateVisible}"
+            InputTransparent="True"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="{StaticResource SpaceSM}">
+            <Image
+                Source="empty_inbox.png"
+                WidthRequest="48"
+                HeightRequest="48"
+                HorizontalOptions="Center" />
+            <Label
+                Style="{StaticResource EmptyStateTitle}"
+                Text="{Binding EmptyTitle}" />
+            <Label
+                Style="{StaticResource EmptyStateBody}"
+                Text="{Binding EmptyBody}" />
+        </VerticalStackLayout>
+
+        <!-- Fixed Syncfusion liquid-glass chrome. Grid siblings stay fixed while
+             cards scroll beneath them so the glass has live content to refract. -->
+        <HorizontalStackLayout
+            x:Name="TopChromeBar"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Spacing="10"
+            Margin="0,16,24,0">
+
+            <Grid
+                WidthRequest="56"
+                HeightRequest="56">
+                <controls:ChromeGlassButton
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    IconSource="icon_add.png"
+                    SemanticProperties.Description="Add link"
+                    Clicked="OnAddClicked" />
+                <Border
+                    x:Name="AddButtonActiveHalo"
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    BackgroundColor="{StaticResource ColorGlassActiveOverlay}"
+                    StrokeThickness="0"
+                    Opacity="0"
+                    InputTransparent="True">
+                    <Border.StrokeShape>
+                        <Ellipse />
+                    </Border.StrokeShape>
+                </Border>
+            </Grid>
+
+            <controls:ChromeGlassButton
+                WidthRequest="50"
+                HeightRequest="50"
+                IconSource="icon_photostack.png"
+                BadgeText="{Binding UnreviewedScreenshotCountText}"
+                BadgeVisible="{Binding HasUnreviewedScreenshots}"
+                SemanticProperties.Description="Screenshots"
+                Clicked="OnScreenshotsClicked" />
+
+            <controls:ChromeGlassButton
+                WidthRequest="50"
+                HeightRequest="50"
+                IconSource="icon_settings.png"
+                SemanticProperties.Description="Settings"
+                Clicked="OnSettingsClicked" />
+
+        </HorizontalStackLayout>
+
+        <!-- Custom floating glass tab bar (content scrolls behind it) -->
+        <controls:GlassTabBar
+            x:Name="BottomChromeBar"
+            Current="Inbox" />
+
+    </Grid>
+
+</ContentPage>

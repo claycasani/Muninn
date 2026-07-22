@@ -1,0 +1,2 @@
+ALTER TABLE saves
+    ADD COLUMN IF NOT EXISTS manual_category VARCHAR(80);

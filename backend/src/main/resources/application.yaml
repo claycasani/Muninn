@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mnemosyne}}
+    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:mnemosyne}}
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:moneta}}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: ${SHOW_SQL:false}
+  flyway:
+    enabled: true
+
+jwt:
+  # In production: set JWT_SECRET as a hosting environment variable.
+  # For local dev: copy .env.example → .env and fill in a real value.
+  secret: ${JWT_SECRET:}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: gemini-2.5-flash
+
+async:
+  analysis:
+    core-pool-size: 2
+    max-pool-size: 4
+    queue-capacity: 50
+
+r2:
+  account-id: ${R2_ACCOUNT_ID:}
+  access-key-id: ${R2_ACCESS_KEY_ID:}
+  secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+  bucket-name: ${R2_BUCKET_NAME:}
+
+server:
+  address: 0.0.0.0
+  port: ${PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Muninn.Controls.GlassNavHeader"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls">
+
+    <!--
+    Shared page header: the Syncfusion liquid-glass back button plus an optional in-page title. Used on every pushed page
+    so the back affordance is the same glass circle everywhere instead of the
+    native iOS chevron on some pages and the glass button on others.
+    Back navigation (GoToAsync "..") lives here so pages need no code-behind.
+    -->
+    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalOptions="Start">
+        <controls:ChromeGlassButton
+            Grid.Column="0"
+            WidthRequest="50"
+            HeightRequest="50"
+            IconSource="icon_back.png"
+            IconTranslationX="-1.5"
+            VerticalOptions="Center"
+            Clicked="OnBackClicked" />
+
+        <Label
+            Grid.Column="1"
+            Style="{StaticResource TitleLabel}"
+            Text="{Binding Title, Source={x:Reference Root}}"
+            VerticalOptions="Center"
+            LineBreakMode="TailTruncation"
+            MaxLines="1" />
+    </Grid>
+</ContentView>

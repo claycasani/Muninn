@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.ScreenshotPermissionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False">
+
+    <Grid
+        Padding="{StaticResource ScreenMargin}"
+        RowDefinitions="*,Auto">
+
+        <VerticalStackLayout
+            Grid.Row="0"
+            Spacing="0"
+            VerticalOptions="Center">
+
+            <Border
+                WidthRequest="112"
+                HeightRequest="112"
+                BackgroundColor="{StaticResource ColorSunken}"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 28"
+                HorizontalOptions="Center">
+                <Grid>
+                    <Image
+                        Source="icon_photo.png"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                    <Label
+                        Text="+"
+                        FontSize="{StaticResource FontSizeBody}"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource ColorAccent}"
+                        HorizontalOptions="End"
+                        VerticalOptions="End"
+                        Margin="0,0,28,28" />
+                </Grid>
+            </Border>
+
+            <Border
+                Style="{StaticResource CategoryTag}"
+                HorizontalOptions="Center"
+                Margin="0,32,0,0">
+                <Label
+                    Style="{StaticResource CategoryTagLabel}"
+                    FontAttributes="Bold"
+                    Text="New in Muninn" />
+            </Border>
+
+            <Label
+                Style="{StaticResource TitleLabel}"
+                Text="Review before&#x0a;you save"
+                HorizontalTextAlignment="Center"
+                Margin="0,24,0,0" />
+
+            <Label
+                Style="{StaticResource BodyLabel}"
+                TextColor="{StaticResource ColorTextSecondary}"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="4"
+                Text="Muninn watches for new screenshots after you grant access. Each one comes here first — save it to your library or let it go."
+                Margin="0,24,0,0" />
+
+            <Border
+                Style="{StaticResource SaveCard}"
+                Margin="0,32,0,0">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource SpaceMD}">
+                    <Border
+                        Grid.Column="0"
+                        WidthRequest="48"
+                        HeightRequest="48"
+                        BackgroundColor="{StaticResource ColorSunken}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 12">
+                        <Image
+                            Source="icon_shield.png"
+                            WidthRequest="24"
+                            HeightRequest="24"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label
+                            Style="{StaticResource BodyBoldLabel}"
+                            MaxLines="1"
+                            Text="Existing screenshots untouched" />
+                        <Label
+                            Style="{StaticResource SecondaryLabel}"
+                            LineBreakMode="WordWrap"
+                            Text="Only new ones taken after granting access will ever appear here." />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                TextColor="{StaticResource ColorDestructive}"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                Text="{Binding Message}"
+                IsVisible="{Binding Message, Converter={StaticResource StringNotEmptyConverter}}"
+                Margin="0,16,0,0" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            Spacing="{StaticResource SpaceSM}"
+            Padding="0,0,0,24">
+            <Button
+                Style="{StaticResource ButtonPrimary}"
+                Text="Allow Access"
+                Command="{Binding AllowAccessCommand}"
+                IsEnabled="{Binding IsRequesting, Converter={StaticResource InverseBoolConverter}}" />
+            <Button
+                Style="{StaticResource ButtonPlain}"
+                Text="Not now"
+                TextColor="{StaticResource ColorTextSecondary}"
+                Command="{Binding NotNowCommand}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>
+

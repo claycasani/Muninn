@@ -1,0 +1,58 @@
+# Secrets and local configuration
+.env
+.env.*
+*.env
+!.env.example
+app/appsettings.json
+app/appsettings.local.json
+app/appsettings.*.local.json
+Directory.Build.local.props
+
+# Internal AI/agent tooling
+CLAUDE.md
+AGENTS.md
+.claude/
+.agents/
+.codex/
+.cursor/
+.cursorrules
+.cursorignore
+.aider*
+.windsurfrules
+GEMINI.md
+.github/copilot-instructions.md
+.github/instructions/
+
+# IDE and user-local state
+.idea/
+**/.idea/
+.vscode/
+.vs/
+.fleet/
+*.iml
+*.user
+*.suo
+*.DotSettings.user
+
+# Build output
+**/bin/
+**/obj/
+**/target/
+**/build/
+**/out/
+*.class
+*.jar
+!*-sources.jar
+
+# Local device-test tooling and temporary entitlements
+scripts/device-test.sh
+app/Platforms/iOS/Entitlements.DeviceTest.plist
+*.tmp.plist
+*.temp.plist
+tmp/
+**/tmp/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride

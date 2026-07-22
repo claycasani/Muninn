@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+      App Group shared with the MuninnShare extension.
+      Both the main app and the extension must declare the same group ID.
+      The extension writes pendingShareUrl here; the main app reads it after
+      a valid session is confirmed (via Preferences.Get with sharedName = group id).
+    -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.claycasani.muninn</string>
+    </array>
+</dict>
+</plist>

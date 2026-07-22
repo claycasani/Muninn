@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>Muninn</string>
+    <key>CFBundleName</key>
+    <string>MuninnShare</string>
+    <key>CFBundlePackageType</key>
+    <string>XPC!</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>NSExtension</key>
+    <dict>
+        <!--
+          com.apple.share-services = iOS Share Extension point.
+          The extension appears in the iOS share sheet for any content
+          that matches the activation rule below.
+        -->
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.share-services</string>
+        <!--
+          Must match the [Register("...")] attribute on ShareViewController.cs
+        -->
+        <key>NSExtensionPrincipalClass</key>
+        <string>ShareViewController</string>
+        <key>NSExtensionAttributes</key>
+        <dict>
+            <!--
+              Activation rule: show Muninn in the share sheet only when
+              the user is sharing exactly one URL (Safari links, links from
+              any app, etc.). Set max to 0 to disable; bump when adding
+              image/file sharing in a later phase.
+            -->
+            <key>NSExtensionActivationRule</key>
+            <dict>
+                <key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
+                <integer>1</integer>
+            </dict>
+        </dict>
+    </dict>
+</dict>
+</plist>

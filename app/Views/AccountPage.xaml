@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.AccountPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="Account">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <controls:GlassNavHeader Grid.Row="0" Title="Account" Margin="24,16,24,4" />
+
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout
+            Margin="{StaticResource ScreenMargin}"
+            Spacing="0">
+
+            <BoxView HeightRequest="{StaticResource SpaceMD}" Color="Transparent" />
+
+            <Border
+                WidthRequest="94"
+                HeightRequest="94"
+                BackgroundColor="{StaticResource ColorSunken}"
+                StrokeThickness="0"
+                StrokeShape="Ellipse"
+                HorizontalOptions="Center">
+                <Label
+                    Style="{StaticResource AvatarLabel}"
+                    Text="{Binding Initials}" />
+            </Border>
+
+            <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <VerticalStackLayout Spacing="0" Padding="{StaticResource CardPadding}">
+                    <Label Style="{StaticResource SecondaryLabel}" Text="Display Name" />
+                    <Entry
+                        Style="{StaticResource InputEntry}"
+                        HeightRequest="44"
+                        Text="{Binding EditableDisplayName}"
+                        ReturnCommand="{Binding SaveDisplayNameCommand}"
+                        ReturnType="Done" />
+
+                    <Button
+                        Style="{StaticResource ButtonSecondary}"
+                        HeightRequest="44"
+                        Margin="0,8,0,0"
+                        Text="Save Display Name"
+                        Command="{Binding SaveDisplayNameCommand}"
+                        IsEnabled="{Binding SaveDisplayNameCommand.IsRunning, Converter={StaticResource InverseBoolConverter}}" />
+
+                    <BoxView HeightRequest="{StaticResource SpaceLG}" Color="Transparent" />
+
+                    <Label Style="{StaticResource SecondaryLabel}" Text="Email" />
+                    <Label
+                        Style="{StaticResource SettingsRowTitle}"
+                        Margin="0,4,0,0"
+                        Text="{Binding Email}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                Text="{Binding ErrorMessage}"
+                TextColor="{StaticResource ColorDestructive}"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                Margin="0,8,0,0" />
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                Text="{Binding SuccessMessage}"
+                TextColor="{StaticResource ColorAccent}"
+                IsVisible="{Binding SuccessMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                Margin="0,8,0,0" />
+
+            <BoxView HeightRequest="{StaticResource SpaceLG}" Color="Transparent" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                    <Image Style="{StaticResource SettingsIconImage}" Source="icon_lock.png" />
+                    <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Change Password" />
+                    <Label Grid.Column="2" Style="{StaticResource SettingsChevron}" />
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToChangePasswordCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Border>
+
+            <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="*" ColumnSpacing="{StaticResource SpaceMD}">
+                    <Label
+                        Style="{StaticResource SettingsRowTitle}"
+                        TextColor="{StaticResource ColorDestructive}"
+                        Text="Delete Account" />
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToDeleteAccountCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Border>
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                HorizontalTextAlignment="Center"
+                Margin="{StaticResource SpaceMD}"
+                Text="Deleting your account permanently removes all your saved items and cannot be undone." />
+
+        </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.SaveDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:vm="clr-namespace:Muninn.ViewModels"
+    xmlns:models="clr-namespace:Muninn.Models"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="">
+
+    <!--
+    Shell.NavBarIsVisible=False removes the empty header bar the user saw.
+    Content fills from the safe-area top to the bottom.
+    Back button (top-left) and trash button (top-right) are glass overlays,
+    rendered last in the Grid so they sit above the ScrollView.
+    -->
+    <Grid>
+
+        <!-- Loading overlay -->
+        <ActivityIndicator
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="{StaticResource ColorAccent}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+
+        <!-- Main content. Negative bottom margin pulls the ScrollView frame into the
+             bottom safe-area inset so the page's cream fill reaches the true screen
+             bottom instead of leaving a solid safe-area band ("ivory footer"). -->
+        <ScrollView
+            VerticalScrollBarVisibility="Never"
+            Margin="0,0,0,-44"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+
+            <VerticalStackLayout
+                Margin="{StaticResource ScreenMargin}"
+                Spacing="0">
+
+                <!-- Top spacer: clears the glass button row (50pt button + 16pt top + 16pt gap) -->
+                <BoxView HeightRequest="82" Color="Transparent" />
+
+                <!-- Screenshot preview -->
+                <Border
+                    Style="{StaticResource SaveCard}"
+                    Padding="0"
+                    Margin="-24,0,-24,24"
+                    IsVisible="{Binding HasImagePreview}">
+                    <Image
+                        x:Name="SavePreviewImage"
+                        Source="{Binding Save.ImageUrl}"
+                        Aspect="AspectFill"
+                        MaximumHeightRequest="320"
+                        HorizontalOptions="Fill"
+                        BackgroundColor="{StaticResource ColorSunken}" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSavePreviewTapped" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <!-- Large title -->
+                <Label
+                    Style="{StaticResource TitleLabel}"
+                    Text="{Binding Save.DisplayTitle}"
+                    LineBreakMode="WordWrap"
+                    MaxLines="4" />
+
+                <!-- Meta · relative time -->
+                <HorizontalStackLayout Spacing="{StaticResource SpaceXS}" Margin="0,6,0,0">
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{Binding MetaLabel}" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="·" />
+                    <Label Style="{StaticResource SecondaryLabel}" Text="{Binding Save.RelativeTime}" />
+                </HorizontalStackLayout>
+
+                <!-- Error message -->
+                <Label
+                    Style="{StaticResource SecondaryLabel}"
+                    TextColor="Red"
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                    Margin="0,8,0,0" />
+
+                <!-- Category editor -->
+                <Border
+                    Style="{StaticResource CategoryTag}"
+                    HorizontalOptions="Start"
+                    Margin="0,16,0,0">
+                    <Label
+                        Style="{StaticResource CategoryTagLabel}"
+                        Text="{Binding Save.Category, StringFormat='• {0}'}" />
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ChangeCategoryCommand}" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <!-- AI Analysis -->
+                <VerticalStackLayout
+                    Spacing="{StaticResource SpaceSM}"
+                    Margin="0,24,0,0"
+                    IsVisible="{Binding Save.Analysis, Converter={StaticResource NullToBoolConverter}}">
+                    <Label
+                        Style="{StaticResource SectionHeaderLabel}"
+                        Text="AI Analysis" />
+                    <Label
+                        Style="{StaticResource BodyLabel}"
+                        MaxLines="0"
+                        LineBreakMode="WordWrap"
+                        Text="{Binding Save.Analysis.InferredIntent}" />
+                    <!-- Single width-constrained Label so "Suggested: …" wraps across
+                         multiple lines instead of running off the right edge. -->
+                    <Label
+                        Style="{StaticResource SecondaryLabel}"
+                        LineBreakMode="WordWrap"
+                        MaxLines="0"
+                        Margin="0,8,0,0">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Suggested: " FontAttributes="Bold" />
+                                <Span Text="{Binding Save.Analysis.SuggestedAction}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+
+                <HorizontalStackLayout
+                    Spacing="{StaticResource SpaceXS}"
+                    Margin="0,24,0,0"
+                    IsVisible="{Binding Save.Analysis, Converter={StaticResource NullToBoolInvertedConverter}}">
+                    <Label Text="✦" FontSize="{StaticResource FontSizeSecondary}" TextColor="{StaticResource ColorTextTertiary}" />
+                    <Label Style="{StaticResource TertiaryLabel}" Text="Analyzing…" />
+                </HorizontalStackLayout>
+
+                <!-- Link preview card -->
+                <Border
+                    Style="{StaticResource SaveCard}"
+                    Margin="0,24,0,0"
+                    IsVisible="{Binding HasLinkPreview}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenUrlCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSM}">
+                        <Border Grid.Column="0" Style="{StaticResource FaviconContainer}" VerticalOptions="Center">
+                            <Label Style="{StaticResource FaviconMonogram}" Text="{Binding Save.Monogram}" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Style="{StaticResource BodyLabel}" FontAttributes="Bold" MaxLines="1" Text="{Binding Save.Domain}" />
+                            <Label Style="{StaticResource SecondaryLabel}" MaxLines="1" LineBreakMode="TailTruncation" Text="{Binding Save.SourceUrl}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="↗" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource ColorTextTertiary}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+                <VerticalStackLayout Spacing="{StaticResource SpaceSM}" IsVisible="{Binding Save.IsActive}">
+                    <Button Style="{StaticResource ButtonSecondary}" Text="Archive" Command="{Binding ArchiveCommand}" />
+                    <Button Style="{StaticResource ButtonPrimary}" Text="Mark Complete" Command="{Binding CompleteCommand}" />
+                </VerticalStackLayout>
+
+                <HorizontalStackLayout
+                    Spacing="{StaticResource SpaceSM}"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding Save.IsCompleted}">
+                    <Label Text="✓" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource ColorAccent}" />
+                    <Label Style="{StaticResource BodyLabel}" TextColor="{StaticResource ColorAccent}" Text="Completed" />
+                </HorizontalStackLayout>
+
+                <Button
+                    Style="{StaticResource ButtonSecondary}"
+                    Text="Uncomplete"
+                    Margin="0,16,0,0"
+                    Command="{Binding UncompleteCommand}"
+                    IsVisible="{Binding Save.IsCompleted}" />
+
+                <VerticalStackLayout Spacing="{StaticResource SpaceSM}" IsVisible="{Binding Save.IsArchived}">
+                    <Label Style="{StaticResource BodyLabel}" TextColor="{StaticResource ColorTextSecondary}" HorizontalTextAlignment="Center" Text="Archived" />
+                    <Button Style="{StaticResource ButtonSecondary}" Text="Unarchive" Command="{Binding UnarchiveCommand}" />
+                </VerticalStackLayout>
+
+                <!-- Bottom pad: gives the floating tab bar room, content scrolls fully visible -->
+                <BoxView HeightRequest="140" Color="Transparent" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Syncfusion liquid-glass chrome: back (top-left) and trash (top-right). -->
+
+        <!-- Back button — top-left, text glyph icon -->
+        <controls:ChromeGlassButton
+            WidthRequest="50"
+            HeightRequest="50"
+            IconSource="icon_back.png"
+                IconTranslationX="-1.5"
+            HorizontalOptions="Start"
+            VerticalOptions="Start"
+            Margin="24,16,0,0"
+            Clicked="OnBackClicked" />
+
+        <!-- Trash button — top-right, visible only after load -->
+        <controls:ChromeGlassButton
+            WidthRequest="50"
+            HeightRequest="50"
+            IconSource="icon_trash.png"
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="0,16,24,0"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+            Clicked="OnDeleteClicked" />
+
+        <!-- Category picker bottom sheet. Scrim + a bottom card whose list scrolls,
+             so it stays compact no matter how many categories the user has. Tapping
+             the scrim (or Cancel) dismisses. -->
+        <Grid
+            IsVisible="{Binding IsCategoryPickerVisible}"
+            BackgroundColor="#66000000">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseCategoryPickerCommand}" />
+            </Grid.GestureRecognizers>
+
+            <Border
+                Style="{StaticResource BottomSheetCard}"
+                VerticalOptions="End"
+                Margin="12,0,12,20">
+                <VerticalStackLayout Spacing="{StaticResource SpaceSM}">
+
+                    <!-- Header: centered title + an X to leave without applying. -->
+                    <Grid Margin="0,2,0,4">
+                        <Label
+                            Style="{StaticResource BodyBoldLabel}"
+                            Text="Change Category"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                        <ImageButton
+                            Source="icon_close.png"
+                            BackgroundColor="Transparent"
+                            WidthRequest="30"
+                            HeightRequest="30"
+                            Padding="5"
+                            Aspect="AspectFit"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            SemanticProperties.Description="Close"
+                            Command="{Binding CloseCategoryPickerCommand}" />
+                    </Grid>
+
+                    <!-- Wrapped chips, sized directly to content (no ScrollView — its
+                         iOS content-inset clipped the top row and padded the bottom).
+                         The current category is green; tapping a chip re-highlights
+                         it without applying, so a mis-tap is corrected in place.
+                         Applies only on Done. -->
+                    <FlexLayout
+                        Wrap="Wrap"
+                        Direction="Row"
+                        AlignItems="Center"
+                        BindableLayout.ItemsSource="{Binding PickerCategories}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:PickerCategory">
+                                <Border
+                                    Style="{StaticResource FilterChip}"
+                                    BackgroundColor="{Binding ChipBackground}"
+                                    Margin="0,0,8,8">
+                                    <Label
+                                        Style="{StaticResource FilterChipLabel}"
+                                        TextColor="{Binding ChipTextColor}"
+                                        Text="{Binding Name}" />
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SaveDetailViewModel}}, Path=SelectCategoryCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </FlexLayout>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="0,8,0,0" />
+
+                    <Button
+                        Text="＋  New category"
+                        Style="{StaticResource ButtonPlain}"
+                        TextColor="{StaticResource ColorAccent}"
+                        Command="{Binding AddCategoryCommand}" />
+
+                    <Button
+                        Text="Done"
+                        Style="{StaticResource ButtonPrimary}"
+                        Command="{Binding ConfirmCategoryCommand}" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

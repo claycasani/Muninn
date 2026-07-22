@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <OutputType>Library</OutputType>
+    <IsAppExtension>True</IsAppExtension>
+    <!--
+      The share extension needs the static registrar. The dynamic registrar
+      crashes in the simulator extension host while resolving ObjC method
+      tokens before ViewDidLoad can complete.
+    -->
+    <Registrar>static</Registrar>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <!-- Device signing is supplied locally; no developer identity or team is committed. -->
+    <CodesignKey Condition="'$(MUNINN_CODESIGN_KEY)' != ''">$(MUNINN_CODESIGN_KEY)</CodesignKey>
+    <CodesignTeamId Condition="'$(MUNINN_DEVELOPMENT_TEAM)' != ''">$(MUNINN_DEVELOPMENT_TEAM)</CodesignTeamId>
+    <DevelopmentTeam Condition="'$(MUNINN_DEVELOPMENT_TEAM)' != ''">$(MUNINN_DEVELOPMENT_TEAM)</DevelopmentTeam>
+    <CodesignProvision Condition="!$(RuntimeIdentifier.Contains('simulator')) And '$(MUNINN_SHARE_CODESIGN_PROVISION)' != ''">$(MUNINN_SHARE_CODESIGN_PROVISION)</CodesignProvision>
+    <CodesignRequireProvisioningProfile Condition="$(RuntimeIdentifier.Contains('simulator'))">false</CodesignRequireProvisioningProfile>
+    <RootNamespace>MuninnShare</RootNamespace>
+    <ApplicationId>com.claycasani.muninn.shareextension</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <Target Name="NormalizeGeneratedXcodeTeam"
+          AfterTargets="Build"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and $([MSBuild]::IsOSPlatform('osx')) and '$(DevelopmentTeam)' != '' and Exists('$(MSBuildProjectDirectory)/obj/Xcode')">
+    <Exec Command="for f in &quot;$(MSBuildProjectDirectory)/obj/Xcode&quot;/*/*.xcodeproj/project.pbxproj; do [ -f &quot;$f&quot; ] || continue; perl -0pi -e 's/DEVELOPMENT_TEAM = [A-Z0-9]+;/DEVELOPMENT_TEAM = $(DevelopmentTeam);/g; s/CODE_SIGN_STYLE = Automatic;\n(?!\s*DEVELOPMENT_TEAM = )/CODE_SIGN_STYLE = Automatic;\n\t\t\t\tDEVELOPMENT_TEAM = $(DevelopmentTeam);\n/g' &quot;$f&quot;; done" />
+  </Target>
+
+</Project>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="Settings">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <controls:GlassNavHeader Grid.Row="0" Title="Settings" Margin="24,16,24,4" />
+
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+        <VerticalStackLayout
+            Margin="{StaticResource ScreenMargin}"
+            Spacing="0">
+
+            <BoxView HeightRequest="{StaticResource SpaceMD}" Color="Transparent" />
+
+            <!-- Account entry -->
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid
+                    Padding="{StaticResource CardPadding}"
+                    ColumnDefinitions="Auto,*,Auto"
+                    ColumnSpacing="{StaticResource SpaceMD}">
+                    <Border
+                        Grid.Column="0"
+                        WidthRequest="48"
+                        HeightRequest="48"
+                        BackgroundColor="{StaticResource ColorSunken}"
+                        StrokeThickness="0"
+                        StrokeShape="Ellipse">
+                        <Label
+                            Style="{StaticResource SettingsRowTitle}"
+                            FontAttributes="Bold"
+                            TextColor="{StaticResource ColorAccent}"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Center"
+                            Text="{Binding Initials}" />
+                    </Border>
+
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            Style="{StaticResource BodyBoldLabel}"
+                            MaxLines="1"
+                            Text="{Binding DisplayName}" />
+                        <Label
+                            Style="{StaticResource SecondaryLabel}"
+                            MaxLines="1"
+                            LineBreakMode="TailTruncation"
+                            Text="{Binding Email}" />
+                    </VerticalStackLayout>
+
+                    <Label
+                        Grid.Column="2"
+                        Style="{StaticResource SettingsChevron}" />
+
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToAccountCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Border>
+
+            <Label Style="{StaticResource SectionHeaderLabel}" Text="Preferences" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <VerticalStackLayout Spacing="0">
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_calendar.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Daily Digest" />
+                        <Switch Grid.Column="2" IsToggled="{Binding DailyDigestEnabled}" OnColor="{StaticResource ColorAccent}" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_clock.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Digest Time" />
+                        <Label Grid.Column="2" Style="{StaticResource SettingsRowValue}" Text="{Binding DigestTime}" />
+                        <Label Grid.Column="3" Style="{StaticResource SettingsChevron}" />
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeDigestTimeCommand}" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_bell.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Notifications" />
+                        <Switch Grid.Column="2" IsToggled="{Binding NotificationsEnabled}" OnColor="{StaticResource ColorAccent}" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_archive_small.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Auto-archive completed" />
+                        <Label Grid.Column="2" Style="{StaticResource SettingsRowValue}" Text="{Binding AutoArchiveLabel}" />
+                        <Label Grid.Column="3" Style="{StaticResource SettingsChevron}" />
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeAutoArchiveCommand}" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_document.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Categories" />
+                        <Label Grid.Column="2" Style="{StaticResource SettingsChevron}" />
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding NavigateToCategoriesCommand}" />
+                        </Grid.GestureRecognizers>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                TextColor="{StaticResource ColorDestructive}"
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                Margin="0,8,0,0" />
+
+            <Label Style="{StaticResource SectionHeaderLabel}" Text="Support" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <VerticalStackLayout Spacing="0">
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_help.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Get Help" />
+                        <Image Grid.Column="2" Style="{StaticResource SettingsIconImage}" Source="icon_external.png" WidthRequest="20" HeightRequest="20" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_shield.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Privacy Policy" />
+                        <Image Grid.Column="2" Style="{StaticResource SettingsIconImage}" Source="icon_external.png" WidthRequest="20" HeightRequest="20" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_document.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Terms of Service" />
+                        <Image Grid.Column="2" Style="{StaticResource SettingsIconImage}" Source="icon_external.png" WidthRequest="20" HeightRequest="20" />
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{StaticResource ColorSeparator}" Margin="56,0,0,0" />
+
+                    <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceMD}">
+                        <Image Style="{StaticResource SettingsIconImage}" Source="icon_info.png" />
+                        <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="About Muninn" />
+                        <Label Grid.Column="2" Style="{StaticResource SettingsRowValue}" Text="1.0" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid Padding="{StaticResource SettingsRowPadding}" ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource SpaceMD}">
+                    <Image Style="{StaticResource SettingsIconImage}" Source="icon_signout.png" />
+                    <Label Grid.Column="1" Style="{StaticResource SettingsRowTitle}" Text="Sign Out" />
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SignOutCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+            </Border>
+
+            <BoxView HeightRequest="{StaticResource SpaceXXL}" Color="Transparent" />
+
+        </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.DeleteAccountPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    Title="">
+
+    <Grid
+        RowDefinitions="Auto,*,Auto"
+        Margin="{StaticResource ScreenMargin}">
+
+        <controls:GlassNavHeader Grid.Row="0" Title="" Margin="0,16,0,4" />
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            VerticalOptions="Center"
+            Spacing="0">
+
+            <Border
+                WidthRequest="92"
+                HeightRequest="92"
+                BackgroundColor="{StaticResource ColorDestructiveTintBg}"
+                StrokeThickness="0"
+                StrokeShape="Ellipse"
+                HorizontalOptions="Center">
+                <Label
+                    Text="!"
+                    FontSize="{StaticResource FontSizeTitle}"
+                    FontAttributes="Bold"
+                    TextColor="{StaticResource ColorDestructive}"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center" />
+            </Border>
+
+            <BoxView HeightRequest="{StaticResource SpaceXL}" Color="Transparent" />
+
+            <Label
+                Style="{StaticResource TitleLabel}"
+                FontSize="{StaticResource FontSizeBody}"
+                HorizontalTextAlignment="Center"
+                Text="Delete your account?" />
+
+            <Label
+                Style="{StaticResource BodyLabel}"
+                TextColor="{StaticResource ColorTextSecondary}"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                MaxLines="0"
+                Margin="18,20,18,0"
+                Text="This will permanently delete your Muninn account and all of your saved items, digests, and activity." />
+
+            <Label
+                Style="{StaticResource BodyBoldLabel}"
+                HorizontalTextAlignment="Center"
+                Margin="0,24,0,0"
+                Text="This action cannot be undone." />
+
+            <Label
+                Style="{StaticResource SecondaryLabel}"
+                TextColor="{StaticResource ColorDestructive}"
+                HorizontalTextAlignment="Center"
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                Margin="0,24,0,0" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout
+            Grid.Row="2"
+            Spacing="{StaticResource SpaceSM}"
+            Margin="0,0,0,24">
+            <Button
+                Style="{StaticResource ButtonDestructive}"
+                Text="Delete My Account"
+                Command="{Binding DeleteAccountCommand}"
+                IsEnabled="{Binding IsDeleting, Converter={StaticResource InverseBoolConverter}}" />
+            <Button
+                Style="{StaticResource ButtonNeutral}"
+                Text="Cancel"
+                Command="{Binding CancelCommand}"
+                IsEnabled="{Binding IsDeleting, Converter={StaticResource InverseBoolConverter}}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

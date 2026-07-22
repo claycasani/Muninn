@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.ArchivePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Muninn.Controls"
+    xmlns:models="clr-namespace:Muninn.Models"
+    xmlns:vm="clr-namespace:Muninn.ViewModels"
+    Style="{StaticResource AppPage}"
+    Shell.NavBarIsVisible="False"
+    SafeAreaEdges="None"
+    Title="Archive">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+        <Label
+            Grid.Row="0"
+            Text="Archive"
+            Style="{StaticResource TitleLabel}"
+            Margin="24,32,24,0" />
+
+        <controls:SearchBarView
+            Grid.Row="1"
+            Margin="24,16,24,0"
+            Text="{Binding SearchQuery, Mode=TwoWay}"
+            CommitCommand="{Binding CommitSearchCommand}"
+            Placeholder="Search saves…" />
+
+        <Grid
+            Grid.Row="2"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="{StaticResource SpaceSM}"
+            Margin="24,16,24,0">
+            <Button
+                Grid.Column="0"
+                Text="Archived"
+                BackgroundColor="{Binding ArchivedTabBackgroundColor}"
+                TextColor="{Binding ArchivedTabTextColor}"
+                CornerRadius="18"
+                HeightRequest="36"
+                FontAttributes="Bold"
+                Command="{Binding SelectArchivedTabCommand}" />
+            <Button
+                Grid.Column="1"
+                Text="Completed"
+                BackgroundColor="{Binding CompletedTabBackgroundColor}"
+                TextColor="{Binding CompletedTabTextColor}"
+                CornerRadius="18"
+                HeightRequest="36"
+                FontAttributes="Bold"
+                Command="{Binding SelectCompletedTabCommand}" />
+        </Grid>
+
+        <!-- Category filter chips -->
+        <CollectionView
+            Grid.Row="3"
+            ItemsSource="{Binding CategoryFilters}"
+            ItemsLayout="HorizontalList"
+            HorizontalScrollBarVisibility="Never"
+            SelectionMode="None"
+            Margin="24,12,0,0"
+            HeightRequest="36"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CategoryFilterOption">
+                    <Border
+                        Style="{StaticResource FilterChip}"
+                        BackgroundColor="{Binding BackgroundColor}">
+                        <Label
+                            Style="{StaticResource FilterChipLabel}"
+                            Text="{Binding Name}"
+                            TextColor="{Binding TextColor}" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ArchiveViewModel}}, Path=SelectCategoryCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Loading indicator -->
+        <ActivityIndicator
+            Grid.Row="4"
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="{StaticResource ColorAccent}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+
+        <!-- Archived saves — read-only, newest-completed first.
+             Same card layout as Digest: no complete circle, tap → Save Detail. -->
+        <CollectionView
+            Grid.Row="4"
+            VerticalScrollBarVisibility="Never"
+            ItemsSource="{Binding Saves}"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+            Margin="24,0,24,-44">
+
+            <CollectionView.Header>
+                <BoxView HeightRequest="{StaticResource SpaceSM}" Color="Transparent" />
+            </CollectionView.Header>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:SaveModel">
+                    <Border
+                        Style="{StaticResource SaveCard}"
+                        Margin="0,0,0,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ArchiveViewModel}}, Path=NavigateToDetailCommand}"
+                                CommandParameter="{Binding Id}" />
+                        </Border.GestureRecognizers>
+
+                        <!-- Two-column layout: favicon monogram | content.
+                             No complete circle — archived saves are read-only. -->
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12">
+
+                            <!-- Favicon / thumbnail slot (spans all rows on left) -->
+                            <Border
+                                Grid.Column="0"
+                                Grid.RowSpan="5"
+                                Style="{StaticResource FaviconContainer}"
+                                VerticalOptions="Start">
+                                <Grid>
+                                    <Label
+                                        Style="{StaticResource FaviconMonogram}"
+                                        Text="{Binding Monogram}" />
+                                    <Image
+                                        Source="{Binding FaviconUrl}"
+                                        Aspect="AspectFit"
+                                        IsVisible="{Binding FaviconUrl, Converter={StaticResource NullToBoolConverter}}" />
+                                    <Image
+                                        Source="{Binding ImageUrl}"
+                                        Aspect="AspectFill"
+                                        IsVisible="{Binding ImageUrl, Converter={StaticResource NullToBoolConverter}}" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Row 0: domain/"Screenshot" + timestamp -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="0"
+                                Style="{StaticResource SecondaryLabel}"
+                                Text="{Binding MetaLabel}" />
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="0"
+                                Style="{StaticResource SecondaryLabel}"
+                                HorizontalOptions="End"
+                                Text="{Binding RelativeTime}" />
+
+                            <!-- Row 1: title (no strikethrough — archive is not a failure state) -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="1"
+                                Style="{StaticResource BodyBoldLabel}"
+                                Text="{Binding DisplayTitle}"
+                                Margin="0,2,0,2" />
+
+                            <!-- Row 2: AI reason line (hidden when null). Width-constrained
+                                 Label so the reason wraps instead of clipping at the edge. -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Style="{StaticResource SecondaryLabel}"
+                                LineBreakMode="WordWrap"
+                                MaxLines="2"
+                                IsVisible="{Binding AiReason, Converter={StaticResource StringNotEmptyConverter}}">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="✦ " />
+                                        <Span Text="{Binding AiReason}" FontAttributes="Italic" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <!-- Analyzing placeholder shown when no AI reason yet -->
+                            <Label
+                                Grid.Column="1"
+                                Grid.Row="2"
+                                Style="{StaticResource TertiaryLabel}"
+                                Text="Analyzing…"
+                                IsVisible="{Binding AiReason, Converter={StaticResource StringEmptyConverter}}" />
+
+                            <!-- Row 3: category tag -->
+                            <Border
+                                Grid.Column="1"
+                                Grid.Row="3"
+                                Style="{StaticResource CategoryTag}"
+                                HorizontalOptions="Start"
+                                Margin="0,4,0,0">
+                                <Label
+                                    Style="{StaticResource CategoryTagLabel}"
+                                    Text="{Binding Category, StringFormat='• {0}'}" />
+                            </Border>
+
+                            <Button
+                                Grid.Column="1"
+                                Grid.Row="4"
+                                Style="{StaticResource ButtonSecondary}"
+                                Text="{Binding Source={RelativeSource AncestorType={x:Type vm:ArchiveViewModel}}, Path=UndoActionText}"
+                                HeightRequest="36"
+                                CornerRadius="12"
+                                FontSize="{StaticResource FontSizeSecondary}"
+                                Margin="0,10,0,0"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ArchiveViewModel}}, Path=UndoSaveCommand}"
+                                CommandParameter="{Binding Id}" />
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.Footer>
+                <!-- Clears the floating glass tab bar -->
+                <BoxView HeightRequest="120" Color="Transparent" />
+            </CollectionView.Footer>
+
+        </CollectionView>
+
+        <!-- Empty state as a page-level overlay, NOT CollectionView.EmptyView (MAUI
+             positions the EmptyView after the measured header, rendering it low on
+             the screen — same fix as InboxPage). -->
+        <VerticalStackLayout
+            Grid.Row="0"
+            Grid.RowSpan="5"
+            IsVisible="{Binding IsEmptyStateVisible}"
+            InputTransparent="True"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="{StaticResource SpaceSM}">
+            <Image
+                Source="tab_archive.png"
+                WidthRequest="48"
+                HeightRequest="48"
+                HorizontalOptions="Center"
+                Opacity="0.35" />
+            <Label
+                Style="{StaticResource EmptyStateTitle}"
+                Text="{Binding EmptyTitle}" />
+            <Label
+                Style="{StaticResource EmptyStateBody}"
+                Text="{Binding EmptyBody}" />
+        </VerticalStackLayout>
+
+        <!-- Custom floating glass tab bar (content scrolls behind it) -->
+        <controls:GlassTabBar Grid.RowSpan="5" Current="Archive" />
+
+    </Grid>
+
+</ContentPage>

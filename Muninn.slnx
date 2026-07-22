@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/app.shareextension/">
+    <Project Path="app.shareextension/MuninnShare.csproj" />
+  </Folder>
+  <Folder Name="/app/">
+    <Project Path="app/Muninn.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Muninn.Views.ImagePreviewPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="Transparent"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid
+            Padding="24,20,24,0"
+            HorizontalOptions="Fill"
+            VerticalOptions="Start">
+            <Border
+                x:Name="CloseButton"
+                Style="{StaticResource SettingsGlassButton}"
+                HorizontalOptions="End">
+                <Label
+                    Text="✕"
+                    FontSize="{StaticResource FontSizeBody}"
+                    TextColor="{StaticResource ColorTextPrimary}"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseTapped" />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1" Padding="20,12,20,20">
+            <Image
+                x:Name="PreviewImage"
+                Aspect="AspectFit"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" />
+        </Grid>
+    </Grid>
+</ContentPage>
