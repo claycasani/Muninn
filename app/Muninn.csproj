@@ -68,7 +68,7 @@
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
-		
+
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 
@@ -81,11 +81,15 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-		<BundleResource Include="Platforms\iOS\Assets.xcassets\**\*" />
-		<BundleResource Remove="Platforms\iOS\Assets.xcassets\**\.DS_Store" />
-		<BundleResource Remove="Platforms\iOS\Assets.xcassets\appicon.appiconset\Muninn-iOS-Clear*.png" />
-		<BundleResource Remove="Platforms\iOS\Assets.xcassets\appicon.appiconset\Muninn-iOS-TintedDark-*.png" />
+		<!-- Icon Composer artwork must be compiled by actool, not copied as raw files. -->
+		<BundleResource Remove="Platforms\iOS\Resources\Muninn.icon\**\*" />
+		<None Remove="Platforms\iOS\Resources\Muninn.icon\**\*" />
+		<ImageAsset Remove="Platforms\iOS\Resources\Muninn.icon\**\*" />
+		<ImageAsset Remove="Platforms\iOS\Assets.xcassets\appicon.appiconset\**\*" />
+		<MuninnComposerAsset Include="Platforms\iOS\Resources\Muninn.icon\**\*" Exclude="**\.DS_Store" />
 	</ItemGroup>
+
+	<Import Project="BuildTargets/IconComposer.targets" />
 
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
 		<BundleResource Include="Platforms\MacCatalyst\Assets.xcassets\**\*" />
@@ -108,9 +112,10 @@
 	  and embedded into the main .ipa by the build system automatically.
 	-->
 	<!-- Set -p:IncludeShareExtension=false to build the main app WITHOUT the share
-	     extension for local free-provisioning device installs:
-	     the extension needs its own 7-day profile, which we don't regenerate for dev
-	     testing (the extension is non-functional in minimal-entitlement installs anyway).
+	     extension when troubleshooting a main-app-only device install. The full
+	     handoff requires matching App Group entitlements for both targets. Historical
+	     free-profile tests lacked that entitlement, but the owner recalls an unlogged
+	     physical share success, so the current full-device path must be re-tested.
 	     Default (unset) still builds the full app for real device/store builds. -->
 	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' And '$(IncludeShareExtension)' != 'false'">
 		<ProjectReference Include="..\app.shareextension\MuninnShare.csproj">

@@ -9,6 +9,7 @@ namespace Muninn.ViewModels;
 public partial class SettingsViewModel : BaseViewModel
 {
     private readonly IApiService _apiService;
+    private readonly ILocalNotificationService _localNotificationService;
     private bool _isHydrating;
 
     [ObservableProperty]
@@ -41,9 +42,12 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty]
     private string _errorMessage = string.Empty;
 
-    public SettingsViewModel(IApiService apiService)
+    public SettingsViewModel(
+        IApiService apiService,
+        ILocalNotificationService localNotificationService)
     {
         _apiService = apiService;
+        _localNotificationService = localNotificationService;
     }
 
     partial void OnDailyDigestEnabledChanged(bool value)
@@ -66,6 +70,7 @@ public partial class SettingsViewModel : BaseViewModel
         {
             var account = await _apiService.GetAccountAsync();
             ApplyAccount(account);
+            await SyncLocalNotificationsAsync(account);
         }
         catch (ApiException ex)
         {
@@ -196,6 +201,7 @@ public partial class SettingsViewModel : BaseViewModel
         {
             var updated = await _apiService.UpdateAccountAsync(request);
             ApplyAccount(updated);
+            await SyncLocalNotificationsAsync(updated);
         }
         catch (ApiException ex)
         {
@@ -206,6 +212,12 @@ public partial class SettingsViewModel : BaseViewModel
             ErrorMessage = "Couldn't update settings.";
         }
     }
+
+    private Task SyncLocalNotificationsAsync(AccountResponse account)
+        => _localNotificationService.SyncDailyDigestAsync(
+            account.DailyDigestEnabled,
+            account.NotificationsEnabled,
+            account.DigestTime);
 
     private static string FormatDigestTime(string value)
     {

@@ -1,0 +1,41 @@
+<Project>
+  <!-- The .NET iOS 26.5 task does not recognize .icon packages yet. Compile with
+       Xcode directly, including other catalogs in the same Assets.car so MAUI
+       resources are preserved. Remove this bridge when adopting native SDK support. -->
+  <Target Name="PrepareMuninnComposer"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <PropertyGroup>
+      <_MuninnComposerOutput>$(DeviceSpecificIntermediateOutputPath)composer/</_MuninnComposerOutput>
+      <_MuninnComposerPlatform Condition="$(RuntimeIdentifier.Contains('simulator'))">iphonesimulator</_MuninnComposerPlatform>
+      <_MuninnComposerPlatform Condition="!$(RuntimeIdentifier.Contains('simulator'))">iphoneos</_MuninnComposerPlatform>
+    </PropertyGroup>
+    <ItemGroup>
+      <_MuninnCatalogCandidate Include="$([System.Text.RegularExpressions.Regex]::Match('%(ImageAsset.FullPath)', '(?i)^.*?\.xcassets').Value)" />
+    </ItemGroup>
+    <RemoveDuplicates Inputs="@(_MuninnCatalogCandidate)">
+      <Output TaskParameter="Filtered" ItemName="_MuninnCatalog" />
+    </RemoveDuplicates>
+  </Target>
+
+  <Target Name="CompileMuninnComposer" DependsOnTargets="PrepareMuninnComposer"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'"
+          Inputs="@(MuninnComposerAsset);@(ImageAsset);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(_TemporaryAppManifest)"
+          Outputs="$(_MuninnComposerOutput)bundle/Assets.car;$(_MuninnComposerOutput)partial-info.plist">
+    <MakeDir Directories="$(_MuninnComposerOutput)bundle" />
+    <Exec Command="&quot;$(_SdkDevPath)/usr/bin/actool&quot; --compile &quot;$(_MuninnComposerOutput)bundle&quot; --platform $(_MuninnComposerPlatform) --minimum-deployment-target $(_MinimumOSVersion) --target-device iphone --target-device ipad --app-icon Muninn --output-partial-info-plist &quot;$(_MuninnComposerOutput)partial-info.plist&quot; --output-format human-readable-text @(_MuninnCatalog->'&quot;%(Identity)&quot;', ' ') &quot;$(MSBuildProjectDirectory)/Platforms/iOS/Resources/Muninn.icon&quot;" />
+  </Target>
+
+  <Target Name="CollectMuninnComposer" AfterTargets="_CompileImageAssets"
+          DependsOnTargets="CompileMuninnComposer"
+          Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <ItemGroup>
+      <_BundleResourceWithLogicalName Remove="@(_BundleResourceWithLogicalName)" Condition="'%(_BundleResourceWithLogicalName.LogicalName)' == 'Assets.car'" />
+      <_BundleResourceWithLogicalName Include="$(_MuninnComposerOutput)bundle/**/*">
+        <LogicalName>%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+        <Optimize>false</Optimize>
+      </_BundleResourceWithLogicalName>
+      <_PostCompilePartialAppManifest Include="$(_MuninnComposerOutput)partial-info.plist" />
+      <FileWrites Include="$(_MuninnComposerOutput)**/*" />
+    </ItemGroup>
+  </Target>
+</Project>

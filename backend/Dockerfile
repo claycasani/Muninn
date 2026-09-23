@@ -13,7 +13,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 COPY --from=build /workspace/target/*.jar app.jar
+COPY start.sh /app/start.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["/bin/sh", "/app/start.sh"]

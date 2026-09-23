@@ -158,7 +158,7 @@ The major respring investigation exonerated glass; unsized SVGs were the cause. 
 
 ## Current known limitations
 
-- The Digest view lists active saves newest-first; there is no implemented daily selection job, digest-history table, notification scheduler, or APNs path.
+- The Digest view lists active saves newest-first; there is no implemented daily selection job, digest-history table, or APNs path. iOS can schedule a generic on-device daily reminder.
 - Screenshot review needs paging/cancellation and another large-backlog physical-device memory pass.
 - Full-image preview/upload paths retain image bytes in managed memory for the lifetime of the operation.
 - The URL share extension is simulator-verified; physical/App Store App Group provisioning is incomplete in the checked-in development setup.
@@ -166,7 +166,7 @@ The major respring investigation exonerated glass; unsized SVGs were the cause. 
 - Analysis jobs are not durable across backend restarts.
 - Mac Catalyst has no equivalent screenshot-folder ingestion or share target.
 - The checked-in client templates are development-oriented; a release build still needs an explicit production backend URL and distribution signing.
-- The backend currently has no dedicated public health endpoint.
+- The backend exposes a minimal unauthenticated `/health` endpoint for deployment readiness.
 
 ## Verification discipline
 
@@ -177,3 +177,7 @@ The project uses three levels of evidence:
 - **Device verified:** the interaction was observed on simulator or physical hardware.
 
 This distinction matters for native UI, Photos, memory, signing, and share-extension work. A successful compile is not treated as a successful device interaction, and an old DEVLOG claim is not treated as current when the code has since changed.
+
+### 2026-09-23 — Public portfolio sync
+
+Ported selected current work from the private development repository: the iOS Icon Composer build bridge and artwork, local daily reminder wiring, backend health check and hosted database URL adapter, and sanitized portfolio images. The public README describes the Railway API/PostgreSQL arrangement only as architecture; it does not publish a live address, deployment runbook, or credentials. The checked-in environment and client templates target local development. The legacy Render blueprint was removed. The share extension remains in source, but working App Group provisioning on a physical device is not claimed.

@@ -17,7 +17,7 @@ The product loop is simple: capture something, let the analysis happen in the ba
 
 ## Status
 
-Cloud deployment is production-shaped but not currently live. The repository includes a Dockerized **Render** service definition and environment-driven configuration for an external **Neon PostgreSQL** database. A previous backend revision was exercised on Render; the latest backend and schema currently run locally. Cloudflare R2 stores image objects, while PostgreSQL stores save records, object keys, and analysis metadata.
+The private beta has used **Railway** for its Dockerized Spring Boot API and a separate managed PostgreSQL service. Flyway initializes and migrates the database; connection details and signing keys are injected at runtime, not stored here. Cloudflare R2 holds image objects, while PostgreSQL holds account data, save records, object keys, and analysis metadata. This portfolio repository contains no live endpoint, cloud deployment manifest, or real credentials. The instructions below use a local API and local PostgreSQL.
 
 The core link and image analysis paths are implemented. The iOS screenshot-review workflow and Liquid Glass-inspired chrome are active development areas; see [Known limitations](#known-limitations-and-roadmap) for the device-memory and verification caveats.
 
@@ -56,28 +56,28 @@ Muninn uses one client codebase and a portable, containerized API:
 1. The **.NET MAUI client** captures a pasted/shared URL or an image. Its iOS Photos integration discovers screenshots taken after the user grants access and presents a Save/Ignore review queue.
 2. **Spring Security** authenticates requests with stateless JWTs. Spring Data JPA owns persistence, and **Flyway** applies the versioned PostgreSQL schema before Hibernate validates it.
 3. For images, the API issues a 15-minute **presigned R2 PUT URL**. The client uploads directly to Cloudflare R2, so image bytes do not pass through the API request path.
-4. Save creation returns immediately. A bounded in-process Spring executor fetches link content or image bytes and calls **Gemini 2.5 Flash** for a structured title, inferred intent, category, suggested action, and extracted text.
+4. Save creation returns immediately. A bounded in-process Spring executor fetches link content or image bytes and calls **Gemini 2.5 Flash** for a structured title, inferred intent, category, suggested action, and extracted text when the developer supplies their own API key.
 5. The backend persists the analysis and returns short-lived presigned R2 GET URLs when image saves are read.
 
 | Layer | Verified implementation |
 |---|---|
 | Client | C# · .NET 10 MAUI · iOS · Mac Catalyst · CommunityToolkit.Mvvm |
-| Native iOS | Photos framework · UIKit share extension · App Group handoff |
+| Native iOS | Photos framework · local notifications · UIKit share extension and App Group handoff (provisioning-dependent) |
 | API | Java 21 · Spring Boot 4.1 · Spring Web MVC · Spring Security |
 | Data | PostgreSQL · Spring Data JPA · 7 Flyway migrations |
 | AI | Gemini 2.5 Flash via `google-genai`; separate link and vision prompts |
 | Storage | Cloudflare R2 through the AWS SDK's S3-compatible client and presigner |
-| Cloud | Multi-stage Docker image · Render Blueprint · external Neon PostgreSQL configuration |
+| Cloud | Multi-stage Docker image · Railway web service · Railway PostgreSQL service |
 | Delivery | GitHub Actions runs the backend test suite on backend changes |
 
 ## Key features
 
 - **AI intent inference** — analyzes webpage content and screenshots into a concise artifact title, inferred reason, suggested next action, extracted text, and category.
 - **User-controlled categorization** — seeds per-user categories, lets users add/rename/delete them, and constrains future AI classification to that vocabulary.
-- **Link capture** — supports paste-to-save and an iOS URL share extension with retry-safe App Group handoff to the authenticated main app.
+- **Link capture** — supports paste-to-save and an iOS URL share extension with retry-safe App Group handoff to the authenticated main app. The current checked-in handoff is simulator-verified; a remembered physical-device success still needs to be reproduced and logged against the current signing state.
 - **Screenshot review** — detects new iOS screenshots after a local baseline, shows a badge and review queue, and reuses the direct-to-R2 image pipeline. The workflow is implemented but still needs further large-backlog memory work and device soak testing.
 - **Search and filtering** — searches titles, domains, inferred intent, extracted text, and categories across Inbox and Archive; results apply when the user commits the query to avoid an iOS CollectionView focus regression.
-- **Digest view** — resurfaces active saves newest-first in-app. Scheduled daily selection and push/local notifications are not implemented yet.
+- **Digest view** — resurfaces active saves newest-first in-app. iOS can schedule a generic daily local reminder from the account's digest settings; server-side digest selection and remote push are not implemented.
 - **Lifecycle and account controls** — complete, archive, restore, permanently delete (including the R2 object), edit account settings, change password, and delete the account.
 
 ## Engineering highlights
@@ -88,18 +88,20 @@ Muninn uses one client codebase and a portable, containerized API:
 - **Non-blocking analysis:** save requests persist first and dispatch Gemini work to a bounded executor. Provider code sits behind `AnalysisService`, keeping controllers and save logic independent of the model SDK.
 - **Direct object-storage path:** authenticated users receive scoped, expiring R2 upload URLs; the client uploads without proxying bytes through Spring Boot, while reads use short-lived presigned URLs.
 - **Native integration:** the URL share extension handles App Group coordination and retry semantics; the Photos service handles authorization, screenshot-only predicates, baselines, reviewed state, and foreground badge refreshes.
-- **Production portability:** a multi-stage Java 21 Docker build produces a minimal runtime image; Render injects database, JWT, Gemini, and R2 configuration at runtime.
+- **Local reminders:** iOS schedules one repeating on-device reminder at the server-backed digest time, so it survives app termination and does not require APNs credentials or a paid Apple Developer membership.
+- **Production portability:** a multi-stage Java 21 Docker build produces a minimal runtime image; Railway injects database, JWT, Gemini, and R2 configuration at runtime.
 - **Evidence-driven debugging:** a physical-device jetsam investigation isolated multi-gigabyte image decodes to SVGs exported without absolute dimensions, then added bounded assets and screenshot-fetch safeguards. The concise investigation is recorded in [DEVLOG.md](DEVLOG.md).
 
 ## Known limitations and roadmap
 
 - **Screenshot memory:** screenshot counting is lazy and does not decode images, and thumbnails are bounded to 1024px. The review page still eagerly loads every pending thumbnail, while save/preview paths materialize a full image in memory. Paging, cancellation, and large-backlog physical-device profiling remain open.
 - **Glass chrome:** current buttons and the floating tab bar use Syncfusion `SfGlassEffectView` with a runtime plain-`Border` kill-switch. This is not a direct native `UIGlassEffect` implementation. Recent interaction and layout refinements still have device-verification items outstanding.
-- **Share extension distribution:** the URL handoff is simulator-verified. Physical-device/App Store builds still require properly provisioned App Group entitlements for both targets; personal-team test builds intentionally omit the extension.
-- **Digest delivery:** the current Digest is an in-app view over active saves. There is no digest history table in the implemented schema, scheduled selection job, APNs integration, or local-notification scheduler.
+- **Share extension distribution:** the URL handoff is simulator-verified in the current documented history. Physical-device/App Store builds still require properly provisioned App Group entitlements for both targets; the owner recalls an unlogged physical success, so the current device state must be re-tested before treating the extension as unavailable.
+- **Digest delivery:** the current Digest is an in-app view over active saves. There is no digest history table, scheduled selection job, or APNs integration. The iOS client does have a generic repeating local reminder, which requires notification permission and is not a server-generated digest.
 - **Async durability:** analysis runs in an in-process executor, not a durable external queue. A process restart can interrupt an in-flight analysis.
 - **Proxy and token-storage hardening:** the rate limiter consumes the first `X-Forwarded-For` value without an explicit trusted-proxy allowlist, and the client falls back to MAUI `Preferences` if `SecureStorage` is unavailable. Both paths should be tightened before a higher-risk production launch.
 - **Platform parity:** Photos ingestion and the share extension are iOS-specific; Mac Catalyst does not yet have equivalent screenshot-folder ingestion or a share target.
+- **Cloud beta:** the private beta deployment is separate from this public source snapshot. There is no public deployment URL here, and no guarantee that the private service is currently available.
 - **Release configuration:** local and physical-device development endpoints are implemented. A public client build still needs an explicit production API-base-URL configuration and final distribution signing.
 
 ## Tech stack
@@ -110,9 +112,9 @@ Muninn uses one client codebase and a portable, containerized API:
 | Apple client | .NET MAUI 10 · CommunityToolkit.Mvvm · Syncfusion.Maui.Core · UIKit · Photos |
 | Backend | Java 21 · Spring Boot 4.1 · Spring Security · Spring Data JPA · Bean Validation |
 | AI and extraction | Gemini 2.5 Flash · Google GenAI Java SDK · jsoup |
-| Database | PostgreSQL 16 locally · Neon PostgreSQL deployment target · Flyway |
+| Database | PostgreSQL 16 locally · Railway-managed PostgreSQL for the private beta · Flyway |
 | Object storage | Cloudflare R2 · AWS SDK for Java 2.x |
-| Cloud and CI | Docker · Render · GitHub Actions |
+| Cloud and CI | Docker · Railway · GitHub Actions |
 | Testing | Spring Boot integration tests · Spring Security Test · Awaitility |
 
 ## Source availability and copyright
@@ -131,20 +133,22 @@ This repository is public solely for portfolio review. It is **not open source**
 - Docker Desktop (for local PostgreSQL)
 - .NET 10 SDK with the MAUI workload
 - Xcode 26+ for iOS/Mac Catalyst builds
-- Gemini and Cloudflare R2 credentials, plus a separately obtained valid Syncfusion license/key, for the complete image/glass experience
+- Your own Gemini and Cloudflare R2 credentials for AI analysis and image saves, respectively; a separately obtained valid Syncfusion license/key for glass UI
 
 ### Backend
 
-Copy the documented template and replace placeholders only in the ignored local file:
+Copy the local template, generate a random signing secret of at least 32 characters, and put it in the ignored `backend/.env` as `JWT_SECRET`. The sample database password is only for the throwaway local Docker container; use your own password if you expose that container beyond your Mac:
 
 ```bash
 cp .env.example backend/.env
+openssl rand -hex 32
+# Copy the generated value into JWT_SECRET in backend/.env
 docker compose up -d db
 cd backend
 mvn spring-boot:run
 ```
 
-Required values are documented in [.env.example](.env.example): a 32+ character `JWT_SECRET`, `GEMINI_API_KEY`, local PostgreSQL settings, and R2 credentials. Production-only Render/Neon variables are also shown there but should not be used for the local Docker database.
+The API and PostgreSQL run on your machine; the API listens on port 8080. Flyway creates the schema automatically on first start. Authentication and basic link saving need no cloud account. AI analysis needs your own Gemini key; image uploads need your own Cloudflare R2 bucket and keys. Those integrations are optional for starting the local stack. There are no production connection variables in [.env.example](.env.example).
 
 Run the backend checks with:
 
@@ -155,11 +159,13 @@ mvn test
 
 ### App
 
-Create the ignored embedded config from the public template, then add a local Syncfusion key and development API URL:
+Create the ignored embedded config from the public template. The iOS simulator and Mac Catalyst use `ApiBaseUrlLocal` (`127.0.0.1:8080`). For a physical iPhone connecting to this local backend, replace `YOUR_MAC_LAN_IP` in `ApiBaseUrlLan` with your Mac's LAN address and keep both devices on the same network. Put your own Syncfusion key in the ignored config if you have one. For a basic local simulator run, start an iOS simulator in Xcode, then:
 
 ```bash
 cp app/appsettings.template.json app/appsettings.json
-dotnet build -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64 app/Muninn.csproj
+dotnet build app/Muninn.csproj -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64 -p:IncludeShareExtension=false
+xcrun simctl install booted app/bin/Debug/net10.0-ios/iossimulator-arm64/Muninn.app
+xcrun simctl launch booted com.claycasani.muninn
 ```
 
 For Mac Catalyst:
@@ -168,7 +174,7 @@ For Mac Catalyst:
 dotnet build -f net10.0-maccatalyst app/Muninn.csproj
 ```
 
-Never commit `backend/.env`, `app/appsettings.json`, signing identities, or generated build output.
+Physical-device builds require your own Apple signing/provisioning. The share extension additionally requires matching App Group entitlements; the local command above builds only the main app. Never commit `backend/.env`, `app/appsettings.json`, signing identities, or generated build output.
 
 ## Repository layout
 
@@ -179,6 +185,6 @@ Never commit `backend/.env`, `app/appsettings.json`, signing identities, or gene
 ├── backend/             Spring Boot API and Flyway migrations
 ├── .github/workflows/   Backend CI
 ├── docker-compose.yml   Local PostgreSQL
-├── render.yaml          Render service blueprint
+├── docs/assets/         Portfolio screenshots and architecture diagram
 └── DEVLOG.md            Curated engineering journey
 ```

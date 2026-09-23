@@ -9,6 +9,7 @@ public partial class App : Application
 {
     private readonly IApiService _apiService;
     private readonly IScreenshotReviewService _screenshotReviewService;
+    private readonly ILocalNotificationService _localNotificationService;
     private readonly IServiceProvider _services;
 
     // True when any window-level diagnostic mode replaces AppShell. Startup work
@@ -20,12 +21,16 @@ public partial class App : Application
         LaunchDiagnostics.MinimalTabs ||
         LaunchDiagnostics.NoShellInbox;
 
-    public App(IApiService apiService, IScreenshotReviewService screenshotReviewService,
+    public App(
+        IApiService apiService,
+        IScreenshotReviewService screenshotReviewService,
+        ILocalNotificationService localNotificationService,
         IServiceProvider services)
     {
         InitializeComponent();
         _apiService = apiService;
         _screenshotReviewService = screenshotReviewService;
+        _localNotificationService = localNotificationService;
         _services = services;
         UserAppTheme = AppTheme.Light;
     }
@@ -204,6 +209,7 @@ public partial class App : Application
                     // with the Bearer token attached so the saves actually appear.
                     await ShowInboxAfterPendingShareAsync();
 
+                await SyncLocalNotificationsAsync();
                 await PublishScreenshotReviewCountAsync();
             }
             else
@@ -249,6 +255,22 @@ public partial class App : Application
             WeakReferenceMessenger.Default.Send(new ScreenshotReviewCountChangedMessage(count));
         }
         catch { }
+    }
+
+    private async Task SyncLocalNotificationsAsync()
+    {
+        try
+        {
+            var account = await _apiService.GetAccountAsync();
+            await _localNotificationService.SyncDailyDigestAsync(
+                account.DailyDigestEnabled,
+                account.NotificationsEnabled,
+                account.DigestTime);
+        }
+        catch
+        {
+            // Notification setup is best-effort and must never block app startup.
+        }
     }
 
     /// <summary>

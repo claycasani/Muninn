@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1200" viewBox="0 0 2000 1200" role="img" aria-labelledby="title description">
   <title id="title">Muninn system architecture</title>
-  <desc id="description">A diagram showing the .NET MAUI Apple client communicating with a Spring Boot API configured for Render, Neon PostgreSQL, Cloudflare R2, public webpages, and Gemini 2.5 Flash.</desc>
+  <desc id="description">A diagram showing the .NET MAUI Apple client communicating with a Spring Boot API hosted on Railway, with Railway PostgreSQL, Cloudflare R2, public webpages, and Gemini 2.5 Flash.</desc>
 
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
@@ -56,7 +56,7 @@
   <text x="120" y="238" class="section-label">APPLE CLIENT</text>
   <text x="120" y="276" class="section-title">Capture &amp; revisit</text>
 
-  <text x="790" y="238" class="section-label">RENDER · DEPLOYMENT TARGET</text>
+  <text x="790" y="238" class="section-label">RAILWAY · DEPLOYMENT TARGET</text>
   <text x="790" y="276" class="section-title">Portable backend</text>
 
   <text x="1460" y="238" class="section-label">EXTERNAL SERVICES &amp; SOURCES</text>
@@ -112,8 +112,8 @@
   <!-- Managed service components -->
   <rect x="1460" y="315" width="420" height="150" rx="24" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>
   <rect x="1488" y="343" width="178" height="30" rx="15" fill="#F2F2EF"/>
-  <text x="1577" y="364" text-anchor="middle" class="tag">PRODUCTION TARGET</text>
-  <text x="1488" y="413" class="card-title">Neon PostgreSQL</text>
+  <text x="1577" y="364" text-anchor="middle" class="tag">PRIVATE BETA</text>
+  <text x="1488" y="413" class="card-title">Railway PostgreSQL</text>
   <text x="1488" y="445" class="card-copy">Users · saves · analyses · categories</text>
 
   <rect x="1460" y="500" width="420" height="150" rx="24" fill="#FFFFFF" stroke="#E5E5EA" stroke-width="2"/>

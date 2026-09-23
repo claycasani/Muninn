@@ -151,8 +151,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<IApiService, ApiService>();
 #if IOS
         builder.Services.AddSingleton<IScreenshotReviewService, IosScreenshotReviewService>();
+        builder.Services.AddSingleton<ILocalNotificationService, IosLocalNotificationService>();
 #else
         builder.Services.AddSingleton<IScreenshotReviewService, ScreenshotReviewService>();
+        builder.Services.AddSingleton<ILocalNotificationService, NoopLocalNotificationService>();
 #endif
 
         // ViewModels

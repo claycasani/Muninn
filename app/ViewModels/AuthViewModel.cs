@@ -8,6 +8,7 @@ public partial class AuthViewModel : BaseViewModel
 {
     private readonly IApiService _apiService;
     private readonly IScreenshotReviewService _screenshotReviewService;
+    private readonly ILocalNotificationService _localNotificationService;
 
     [ObservableProperty]
     private string _email = string.Empty;
@@ -34,10 +35,14 @@ public partial class AuthViewModel : BaseViewModel
         ErrorMessage = string.Empty;
     }
 
-    public AuthViewModel(IApiService apiService, IScreenshotReviewService screenshotReviewService)
+    public AuthViewModel(
+        IApiService apiService,
+        IScreenshotReviewService screenshotReviewService,
+        ILocalNotificationService localNotificationService)
     {
         _apiService = apiService;
         _screenshotReviewService = screenshotReviewService;
+        _localNotificationService = localNotificationService;
     }
 
     [RelayCommand]
@@ -63,6 +68,23 @@ public partial class AuthViewModel : BaseViewModel
             catch { Preferences.Set("auth_token_fallback", token); }
 
             _apiService.SetAuthToken(token);
+
+            // Account settings are server-owned. Sync them after authentication so the
+            // default local reminder is created on a fresh beta install, while an
+            // existing account's disabled/time settings are respected.
+            try
+            {
+                var account = await _apiService.GetAccountAsync();
+                await _localNotificationService.SyncDailyDigestAsync(
+                    account.DailyDigestEnabled,
+                    account.NotificationsEnabled,
+                    account.DigestTime);
+            }
+            catch
+            {
+                // The reminder is best-effort and must not prevent the user from
+                // entering the app if settings cannot be loaded during login.
+            }
 
             // Process any URL queued by the iOS Share Extension.  Runs before navigation
             // so InboxPage.OnAppearing sees the new save when LoadSavesAsync fires.
